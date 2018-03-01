@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.matsim-org</groupId>
+    <groupId>org.matsim.contrib</groupId>
     <artifactId>opdytsMATSimIntegration</artifactId>
     <name>opdytsMATSimIntegration</name>
     <version>0.10.0-SNAPSHOT</version>
@@ -55,9 +55,13 @@
         <groupId>org.matsim</groupId>
         <artifactId>matsim</artifactId>
         <version>0.10.0-SNAPSHOT</version>
-        <type>jar</type>
-        <scope>compile</scope>
       </dependency>
+        <!--to access matsim-example scenarios-->
+        <dependency>
+            <groupId>org.matsim</groupId>
+            <artifactId>matsim-examples</artifactId>
+            <version>0.10.0-SNAPSHOT</version>
+        </dependency>
       <dependency>
           <groupId>org.matsim.contrib</groupId>
           <artifactId>roadpricing</artifactId>
@@ -97,6 +101,6 @@
             <scope>test</scope>
         </dependency>
   </dependencies>
-  <inceptionYear>2018</inceptionYear>
+  <inceptionYear>2017</inceptionYear>
   <description>Provides integration of Opdyts with MATSim for automated calibration.</description>
 </project>

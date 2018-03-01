@@ -22,6 +22,7 @@ package org.matsim.contrib.opdyts.modeChoice;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
@@ -51,6 +52,7 @@ import org.matsim.core.router.MainModeIdentifier;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.core.scoring.functions.ScoringParametersForPerson;
 import org.matsim.core.utils.io.IOUtils;
+import org.matsim.examples.ExamplesUtils;
 import org.matsim.testcases.MatsimTestUtils;
 
 /**
@@ -64,7 +66,7 @@ public class EquilOpdytsIT {
     @Rule
     public MatsimTestUtils helper = new MatsimTestUtils();
 
-    private static String EQUIL_DIR = "../../examples/scenarios/equil-mixedTraffic/";
+    private static URL EQUIL_DIR = ExamplesUtils.getTestScenarioURL("equil-mixedTraffic");
 
     private static final boolean isPlansRelaxed = false;
 
@@ -258,7 +260,7 @@ public class EquilOpdytsIT {
 
     private Config setUpAndReturnConfig(final List<String> modes2consider){
 
-        Config config = ConfigUtils.loadConfig(EQUIL_DIR+"/config-with-mode-vehicles.xml", new OpdytsConfigGroup());
+        Config config = ConfigUtils.loadConfig(IOUtils.newUrl(EQUIL_DIR,"config-with-mode-vehicles.xml"), new OpdytsConfigGroup());
         config.plans().setInputFile("plans2000.xml.gz");
 
         //== default config has limited inputs
