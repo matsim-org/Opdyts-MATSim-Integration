@@ -1,15 +1,39 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <parent>
-    <groupId>org.matsim</groupId>
-    <artifactId>contrib</artifactId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.github.matsim-org</groupId>
+    <artifactId>opdytsMATSimIntegration</artifactId>
+    <name>opdytsMATSimIntegration</name>
     <version>0.10.0-SNAPSHOT</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.matsim.contrib</groupId>
-  <artifactId>opdytsIntegration</artifactId>
-  <name>opdytsIntegration</name>
+    <packaging>pom</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <showWarnings>false</showWarnings>
+                    <showDeprecation>false</showDeprecation>
+                    <encoding>UTF-8</encoding>
+                    <!-- configure initial and maximal memory for compiling -->
+                    <fork>true</fork>
+                    <meminitial>128m</meminitial>
+                    <maxmem>512m</maxmem>
+                    <compilerArguments>
+                        <Xmaxwarns>4000</Xmaxwarns>
+                        <Xmaxerrs>100</Xmaxerrs>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
             </plugin>
@@ -17,11 +41,23 @@
     </build>
     <repositories>
         <repository>
+            <id>matsim</id>
+            <url>http://dl.bintray.com/matsim/matsim</url>
+        </repository>
+        <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
-  <dependencies>
+
+    <dependencies>
+      <dependency>
+        <groupId>org.matsim</groupId>
+        <artifactId>matsim</artifactId>
+        <version>0.10.0-SNAPSHOT</version>
+        <type>jar</type>
+        <scope>compile</scope>
+      </dependency>
       <dependency>
           <groupId>org.matsim.contrib</groupId>
           <artifactId>roadpricing</artifactId>
@@ -47,8 +83,20 @@
            	<artifactId>java</artifactId>
            	<version>master-SNAPSHOT</version>
       </dependency>
-
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.matsim</groupId>
+            <artifactId>matsim</artifactId>
+            <version>0.10.0-SNAPSHOT</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
   </dependencies>
-  <inceptionYear>2017</inceptionYear>
-  <description>Provides integration of MATSim with Opdyts for automated calibration.</description>
+  <inceptionYear>2018</inceptionYear>
+  <description>Provides integration of Opdyts with MATSim for automated calibration.</description>
 </project>
