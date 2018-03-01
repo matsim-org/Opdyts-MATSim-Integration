@@ -3,8 +3,8 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.matsim.contrib</groupId>
-    <artifactId>opdytsMATSimIntegration</artifactId>
-    <name>opdytsMATSimIntegration</name>
+    <artifactId>Opdyts-Matsim-Integration</artifactId>
+    <name>Opdyts-Matsim-Integration</name>
     <version>0.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
