@@ -3,6 +3,14 @@ package org.matsim.contrib.opdyts.utils;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import org.matsim.api.core.v01.Scenario;
+import org.matsim.contrib.opdyts.MATSimSimulator2;
+import org.matsim.contrib.opdyts.car.DifferentiatedLinkOccupancyAnalyzer;
+import org.matsim.contrib.opdyts.pt.PTOccupancyAnalyzer;
+import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.gbl.MatsimRandom;
+
 import floetteroed.opdyts.DecisionVariable;
 import floetteroed.opdyts.DecisionVariableRandomizer;
 import floetteroed.opdyts.ObjectiveFunction;
@@ -10,12 +18,7 @@ import floetteroed.opdyts.convergencecriteria.ConvergenceCriterion;
 import floetteroed.opdyts.convergencecriteria.FixedIterationNumberConvergenceCriterion;
 import floetteroed.opdyts.searchalgorithms.RandomSearch;
 import floetteroed.opdyts.searchalgorithms.SelfTuner;
-import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.opdyts.MATSimSimulator2;
-import org.matsim.contrib.opdyts.car.DifferentiatedLinkOccupancyAnalyzer;
-import org.matsim.contrib.opdyts.pt.PTOccupancyAnalyzer;
-import org.matsim.core.config.ConfigUtils;
-import org.matsim.core.gbl.MatsimRandom;
+import floetteroed.utilities.TimeDiscretization;
 
 /**
  * 

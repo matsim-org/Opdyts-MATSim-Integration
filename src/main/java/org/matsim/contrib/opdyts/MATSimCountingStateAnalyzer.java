@@ -1,14 +1,17 @@
 package org.matsim.contrib.opdyts;
 
 import static java.lang.Math.min;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import floetteroed.utilities.DynamicData;
+
 import org.matsim.api.core.v01.Id;
 import org.matsim.contrib.opdyts.utils.RecursiveCountAverage;
-import org.matsim.contrib.opdyts.utils.TimeDiscretization;
+
+import floetteroed.utilities.DynamicData;
+import floetteroed.utilities.TimeDiscretization;
 
 /**
  * Keeps track of a (part of a) MATSim state vector that is composed of counts
