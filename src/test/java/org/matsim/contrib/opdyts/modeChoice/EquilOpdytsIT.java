@@ -232,8 +232,8 @@ public class EquilOpdytsIT {
     }
 
     private void relaxPlansAndUpdateConfig(final Config config, final String outDir, final List<String> modes2consider){
-
-        config.controler().setOutputDirectory(outDir+"/relaxingPlans/");
+        String relaxedDir = outDir + "relaxingPlans";
+        config.controler().setOutputDirectory(relaxedDir);
         config.controler().setLastIteration(10);
         config.strategy().setFractionOfIterationsToDisableInnovation(0.8);
 
@@ -252,7 +252,7 @@ public class EquilOpdytsIT {
         controler.run();
 
         // set back settings for opdyts
-        File file = new File(config.controler().getOutputDirectory()+"/output_plans.xml.gz");
+        File file = new File(relaxedDir+"/output_plans.xml.gz");
         config.plans().setInputFile( file.getAbsolutePath() );
         config.controler().setOutputDirectory(outDir);
         config.strategy().setFractionOfIterationsToDisableInnovation(Double.POSITIVE_INFINITY);
