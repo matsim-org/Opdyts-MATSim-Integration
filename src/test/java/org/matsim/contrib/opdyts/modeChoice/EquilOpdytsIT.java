@@ -253,7 +253,7 @@ public class EquilOpdytsIT {
 
         // set back settings for opdyts
         File file = new File(config.controler().getOutputDirectory()+"/output_plans.xml.gz");
-        config.plans().setInputFile(file.getAbsoluteFile().getAbsolutePath());
+        config.plans().setInputFile( file.getAbsolutePath() );
         config.controler().setOutputDirectory(outDir);
         config.strategy().setFractionOfIterationsToDisableInnovation(Double.POSITIVE_INFINITY);
     }
