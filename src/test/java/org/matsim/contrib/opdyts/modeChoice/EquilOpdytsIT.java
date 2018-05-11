@@ -47,6 +47,7 @@ import org.matsim.core.config.groups.StrategyConfigGroup;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.OutputDirectoryHierarchy;
+import org.matsim.core.population.io.PopulationReader;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.core.router.MainModeIdentifier;
 import org.matsim.core.scenario.ScenarioUtils;
@@ -68,27 +69,32 @@ public class EquilOpdytsIT {
 
     private static URL EQUIL_DIR = ExamplesUtils.getTestScenarioURL("equil-mixedTraffic");
 
-    private static final boolean isPlansRelaxed = false;
-
     @Test
     public void runTest(){
         List<String> modes2consider = Arrays.asList("car","bicycle");
 
         String outDir = helper.getOutputDirectory();
         Config config = setUpAndReturnConfig(modes2consider);
+        config.controler().setOutputDirectory(outDir);
 
-        //==
-        if(! isPlansRelaxed) {
-            relaxPlansAndUpdateConfig(config, outDir, modes2consider);
-        }
+        //== relaxing
+        config.controler().setOutputDirectory(outDir+"/relaxedPlans/");
+        relaxPlansAndUpdateConfig(config, modes2consider);
+
+        //opdyts run
+        config.plans().setInputFile(null);
+        config.strategy().setFractionOfIterationsToDisableInnovation(Double.POSITIVE_INFINITY);
 
         Scenario scenario = ScenarioUtils.loadScenario(config);
-        scenario.getConfig().controler().setOutputDirectory(outDir);
-        runOpdyts(modes2consider,scenario,outDir);
+        new PopulationReader(scenario).readFile(
+                new File(config.controler().getOutputDirectory()+"/output_plans.xml.gz").getAbsolutePath());
+        scenario.getConfig().controler().setOutputDirectory(outDir+"/opdytsRun/");
+        runOpdyts(modes2consider,scenario);
     }
 
-    private void runOpdyts(final List<String> modes2consider, final Scenario scenario, final String outDir){
+    private void runOpdyts(final List<String> modes2consider, final Scenario scenario){
 
+        String outputDirectory = scenario.getConfig().controler().getOutputDirectory();
         double stepSize = 1.0;
         int opdytsTransitions = 4;
 
@@ -97,7 +103,7 @@ public class EquilOpdytsIT {
         opdytsConfigGroup.setNumberOfIterationsForConvergence(15);
 
         opdytsConfigGroup.setMaxIteration(opdytsTransitions);
-        opdytsConfigGroup.setOutputDirectory(scenario.getConfig().controler().getOutputDirectory());
+        opdytsConfigGroup.setOutputDirectory(outputDirectory);
         opdytsConfigGroup.setDecisionVariableStepSize(stepSize);
         opdytsConfigGroup.setUseAllWarmUpIterations(false);
         opdytsConfigGroup.setWarmUpIterations(5); //this should be tested (parametrized).
@@ -134,11 +140,7 @@ public class EquilOpdytsIT {
         //checks
         String outputDir = helper.getOutputDirectory();
         //check the max opdyts transition
-        if(isPlansRelaxed) {
-            Assert.assertEquals("Maximum number of OpDyTS transitions are wrong.", new File(outDir).listFiles(File::isDirectory).length, opdytsTransitions);
-        } else {
-            Assert.assertEquals("Maximum number of OpDyTS transitions are wrong.", new File(outDir).listFiles(File::isDirectory).length, opdytsTransitions+1); // additional directory for relaxed plans.
-        }
+        Assert.assertEquals("Maximum number of OpDyTS transitions are wrong.", new File(outputDirectory).listFiles(File::isDirectory).length, opdytsTransitions); // additional directory for relaxed plans.
 
         // axial_fixed, check step size
         double maxASCChange = stepSize;
@@ -231,8 +233,8 @@ public class EquilOpdytsIT {
         return 0.;
     }
 
-    private void relaxPlansAndUpdateConfig(final Config config, final String outDir, final List<String> modes2consider){
-        String relaxedDir = outDir + "relaxingPlans";
+    private void relaxPlansAndUpdateConfig(final Config config, final List<String> modes2consider){
+        String relaxedDir = config.controler().getOutputDirectory() ;
         config.controler().setOutputDirectory(relaxedDir);
         config.controler().setLastIteration(10);
         config.strategy().setFractionOfIterationsToDisableInnovation(0.8);
@@ -250,12 +252,6 @@ public class EquilOpdytsIT {
 
         Controler controler = new Controler(scenarioPlansRelaxor);
         controler.run();
-
-        // set back settings for opdyts
-        File file = new File(relaxedDir+"/output_plans.xml.gz");
-        config.plans().setInputFile( file.getAbsolutePath() );
-        config.controler().setOutputDirectory(outDir);
-        config.strategy().setFractionOfIterationsToDisableInnovation(Double.POSITIVE_INFINITY);
     }
 
     private Config setUpAndReturnConfig(final List<String> modes2consider){
