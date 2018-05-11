@@ -138,7 +138,6 @@ public class EquilOpdytsIT {
                 modeChoiceObjectiveFunction);
 
         //checks
-        String outputDir = helper.getOutputDirectory();
         //check the max opdyts transition
         Assert.assertEquals("Maximum number of OpDyTS transitions are wrong.", new File(outputDirectory).listFiles(File::isDirectory).length, opdytsTransitions); // additional directory for relaxed plans.
 
@@ -147,19 +146,19 @@ public class EquilOpdytsIT {
         double bikeInitialASC = 0.;
         double bestASCAfterItr = 0;
         for (int i=0; i<opdytsTransitions;i++){
-            bestASCAfterItr = getBestOverallDecisionVariable(outputDir+"/opdyts.log",String.valueOf(i));
+            bestASCAfterItr = getBestOverallDecisionVariable(outputDirectory+"/opdyts.log",String.valueOf(i));
             Assert.assertTrue("Change in ASC for " + i + " opdyts transition is wrong.", Math.abs( bestASCAfterItr - bikeInitialASC) <= maxASCChange);
             bikeInitialASC = bestASCAfterItr;
         }
         //in order to get 75% bicycle trips, it must be positive
         Assert.assertEquals("The best overall solution is wrong.", bestASCAfterItr, opdytsTransitions-1, MatsimTestUtils.EPSILON ); // stepSize=1 and in every transition bicycle ASC increases
 
-        double valueOfObjFun = getValueOfObjFun(outputDir+"/opdyts.log");
+        double valueOfObjFun = getValueOfObjFun(outputDirectory+"/opdyts.log");
 //        Assert.assertEquals("The best overall objective function", valueOfObjFun, 0.0067, 0.0001 ); // accuracy up to 4 decimal places (for 6 opdyts transitions)
 //         Assert.assertEquals("The best overall objective function", valueOfObjFun, 0.0245, 0.0001 ); // accuracy up to 4 decimal places (for 5 opdyts transitions)
         Assert.assertEquals("The best overall objective function", valueOfObjFun, 0.0597, 0.0001 ); // accuracy up to 4 decimal places // values corresponding to one third population
 
-        double bicycleShare = getBicycleShareFromModeStatsFile(outputDir+"/_"+String.valueOf(opdytsTransitions-1)+"/modestats.txt");
+        double bicycleShare = getBicycleShareFromModeStatsFile(outputDirectory+"/_"+String.valueOf(opdytsTransitions-1)+"/modestats.txt");
 //        Assert.assertTrue("Resulting bicycle share is wrong.", bicycleShare > 0.70 && bicycleShare < 0.80 ); // (for opdyts transitions =5/6)
         Assert.assertTrue("Resulting bicycle share is wrong. Share =="+ bicycleShare, bicycleShare > 0.60 && bicycleShare < 0.70 );
     }
