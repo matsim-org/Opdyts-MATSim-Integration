@@ -12,7 +12,9 @@ import floetteroed.opdyts.trajectorysampling.TrajectorySampler;
 import floetteroed.utilities.math.Vector;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.population.Population;
+import org.matsim.contrib.opdyts.utils.OpdytsConfigGroup;
 import org.matsim.core.api.experimental.events.EventsManager;
+import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.events.BeforeMobsimEvent;
 import org.matsim.core.controler.events.ShutdownEvent;
 import org.matsim.core.controler.events.StartupEvent;
@@ -169,6 +171,8 @@ public class MATSimDecisionVariableSetEvaluator2<U extends DecisionVariable>
 			this.justStarted = false;
 		} else {
 
+			int fileWritingIteration = ConfigUtils.addOrGetModule(event.getServices().getConfig(), OpdytsConfigGroup.class).getFileWritingInterval();
+
 			/*
 			 * (1) Extract the instantaneous state vector.
 			 */
@@ -178,16 +182,27 @@ public class MATSimDecisionVariableSetEvaluator2<U extends DecisionVariable>
 					newInstantaneousStateVector = analyzer.newStateVectorRepresentation();
 
 					//NEW: amit
-					String outFile = event.getServices().getControlerIO().getIterationFilename(event.getIteration(),"stateVector_"+analyzer.getStringIdentifier()+".txt");
-					StateVectorSizeWriter.writeData(newInstantaneousStateVector, outFile);
+					if (event.getIteration()%fileWritingIteration==0){
+						String outFile = event.getServices()
+											  .getControlerIO()
+											  .getIterationFilename(event.getIteration(),
+													  "stateVector_" + analyzer.getStringIdentifier() + ".txt");
+						StateVectorSizeWriter.writeData(newInstantaneousStateVector, outFile);
+					}
 				} else {
 					// NEW: amit
 					Vector tempVector = analyzer.newStateVectorRepresentation();
 					newInstantaneousStateVector = Vector.concat(newInstantaneousStateVector,
 							tempVector);
+
 					//NEW: amit
-					String outFile = event.getServices().getControlerIO().getIterationFilename(event.getIteration(),"stateVector_"+analyzer.getStringIdentifier()+".txt");
-					StateVectorSizeWriter.writeData(tempVector, outFile);
+					if (event.getIteration()%fileWritingIteration==0){
+						String outFile = event.getServices()
+											  .getControlerIO()
+											  .getIterationFilename(event.getIteration(),
+													  "stateVector_" + analyzer.getStringIdentifier() + ".txt");
+						StateVectorSizeWriter.writeData(tempVector, outFile);
+					}
 				}
 			}
 
@@ -231,7 +246,7 @@ public class MATSimDecisionVariableSetEvaluator2<U extends DecisionVariable>
 
 	//NEW: Amit
 	static class StateVectorSizeWriter {
-		public static void writeData(final Vector vector, final String outFile) {
+		static void writeData(final Vector vector, final String outFile) {
 			List<Double> vectorElements = new ArrayList<>(vector.asList());
 			Collections.sort(vectorElements, Collections.reverseOrder());
 

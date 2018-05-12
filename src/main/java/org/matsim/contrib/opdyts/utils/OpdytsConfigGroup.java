@@ -99,12 +99,14 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	private static final String USE_ALL_WARM_UP_ITERATIONS = "useAllWarmUpIterations";
 	private boolean useAllWarmUpIterations = false;
 
-	// NEW, amit July17
 	private static final String MAX_TOTAL_MEMORY = "maxTotalMemory";
 	private int maxTotalMemory = Integer.MAX_VALUE;
 
 	private static final String MAX_MEMORY_PER_TRAJECTORY =  "maxMemoryPerTrajectory";
 	private int maxMemoryPerTrajectory = Integer.MAX_VALUE;
+
+	private static final String FILE_WRITING_INTERVAL = "fileWritingInterval";
+	private int fileWritingInterval = 10;
 
 	@StringGetter(MAX_TOTAL_MEMORY)
 	public int getMaxTotalMemory() {
@@ -325,6 +327,16 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	@StringSetter(UNIFORMITY_GAP_WEIGHT)
 	public void setUniformityGapWeight(double uniformityGapWeight) {
 		this.uniformityGapWeight = uniformityGapWeight;
+	}
+
+	@StringGetter(FILE_WRITING_INTERVAL)
+	public int getFileWritingInterval() {
+		return fileWritingInterval;
+	}
+
+	@StringSetter(FILE_WRITING_INTERVAL)
+	public void setFileWritingInterval(int fileWritingInterval) {
+		this.fileWritingInterval = fileWritingInterval;
 	}
 
 	// MAIN-FUNCTION, ONLY FOR TESTING
