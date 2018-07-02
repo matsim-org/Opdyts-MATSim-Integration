@@ -29,7 +29,8 @@ public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U
 	private AbstractModule[] replacingModules = null;
 	private AbstractModule overrides = AbstractModule.emptyModule();
 
-	private int nextControlerRun = 0;
+//	private int nextControlerRun = 0;
+	private final OpdytsIterationWrapper opdytsIterationWrapper = new OpdytsIterationWrapper();
 
 	private ScoringFunctionFactory scoringFunctionFactory = null;
 
@@ -93,7 +94,9 @@ public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U
 		 * names.
 		 */
 		String outputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
-		outputDirectory = outputDirectory.substring(0, outputDirectory.lastIndexOf("_")) + "_" + this.nextControlerRun;
+//		outputDirectory = outputDirectory.substring(0, outputDirectory.lastIndexOf("_")) + "_" + this.nextControlerRun;
+		outputDirectory = outputDirectory.substring(0, outputDirectory.lastIndexOf("_")) + "_" + this.opdytsIterationWrapper
+				.getIteration();
 		this.scenario.getConfig().controler().setOutputDirectory(outputDirectory);
 
 		/*
@@ -162,7 +165,8 @@ public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U
 		this.stateFactory.registerControler(controler);
 
 		controler.run();
-		this.nextControlerRun++;
+//		this.nextControlerRun++;
+		this.opdytsIterationWrapper.nextIteration();
 		return matsimDecisionVariableEvaluator.getFinalState();
 	}
 
@@ -172,5 +176,9 @@ public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U
 			initialState.implementInSimulation();
 		}
 		return this.run(evaluator);
+	}
+
+	public OpdytsIterationWrapper getOpdytsIterationWrapper() {
+		return opdytsIterationWrapper;
 	}
 }
