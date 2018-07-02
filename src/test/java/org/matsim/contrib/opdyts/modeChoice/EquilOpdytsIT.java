@@ -264,7 +264,7 @@ public class EquilOpdytsIT {
 
         config.changeMode().setModes( modes2consider.toArray(new String [modes2consider.size()]));
         StrategyConfigGroup.StrategySettings modeChoice = new StrategyConfigGroup.StrategySettings();
-        modeChoice.setStrategyName(DefaultPlanStrategiesModule.DefaultStrategy.ChangeTripMode.name());
+        modeChoice.setStrategyName(DefaultPlanStrategiesModule.DefaultStrategy.ChangeTripMode);
         modeChoice.setWeight(0.1);
         config.strategy().addStrategySettings(modeChoice);
 
