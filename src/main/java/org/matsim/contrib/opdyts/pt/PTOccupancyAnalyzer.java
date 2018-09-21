@@ -13,8 +13,8 @@ import org.matsim.api.core.v01.events.handler.PersonEntersVehicleEventHandler;
 import org.matsim.api.core.v01.events.handler.PersonStuckEventHandler;
 import org.matsim.api.core.v01.events.handler.TransitDriverStartsEventHandler;
 import org.matsim.api.core.v01.population.Person;
-import org.matsim.contrib.opdyts.MATSimCountingStateAnalyzer;
 import org.matsim.contrib.opdyts.SimulationStateAnalyzerProvider;
+import org.matsim.contrib.opdyts.stateextraction.CountingStateAnalyzer;
 import org.matsim.core.api.experimental.events.AgentWaitingForPtEvent;
 import org.matsim.core.api.experimental.events.handler.AgentWaitingForPtEventHandler;
 import org.matsim.core.events.handler.EventHandler;
@@ -30,7 +30,7 @@ import floetteroed.utilities.math.Vector;
  * @author Gunnar Flötteröd
  *
  */
-public class PTOccupancyAnalyzer extends MATSimCountingStateAnalyzer<TransitStopFacility>
+public class PTOccupancyAnalyzer extends CountingStateAnalyzer<Id<TransitStopFacility>>
 		implements AgentWaitingForPtEventHandler, TransitDriverStartsEventHandler, PersonEntersVehicleEventHandler,
 		PersonStuckEventHandler {
 
@@ -88,8 +88,8 @@ public class PTOccupancyAnalyzer extends MATSimCountingStateAnalyzer<TransitStop
 
 	// This replaces EventHandler.reset(int), which appears to be called before
 	// the "before mobsim" hook.
-	public void beforeIteration() {
-		super.beforeIteration();
+	public void reset() {
+		super.reset();
 		if (this.transitDrivers == null) {
 			this.transitDrivers = new HashSet<Id<Person>>();
 		} else {
@@ -192,7 +192,7 @@ public class PTOccupancyAnalyzer extends MATSimCountingStateAnalyzer<TransitStop
 
 		@Override
 		public void beforeIteration() {
-			this.analyzer.beforeIteration();
+			this.analyzer.reset();
 		}
 
 	}

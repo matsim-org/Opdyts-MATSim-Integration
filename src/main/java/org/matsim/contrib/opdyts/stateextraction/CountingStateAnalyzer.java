@@ -1,4 +1,4 @@
-package org.matsim.contrib.opdyts;
+package org.matsim.contrib.opdyts.stateextraction;
 
 import static java.lang.Math.min;
 
@@ -7,20 +7,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.matsim.api.core.v01.Id;
-import org.matsim.contrib.opdyts.utils.RecursiveCountAverage;
-
 import floetteroed.utilities.DynamicData;
 import floetteroed.utilities.TimeDiscretization;
 
 /**
- * Keeps track of a (part of a) MATSim state vector that is composed of counts
- * (for instance, vehicles on a road or passengers waiting at a stop).
+ * Keeps track of a (part of a) state vector that is composed of counts (for
+ * instance, vehicles on a road or passengers waiting at a stop).
  * 
  * @author Gunnar Flötteröd
  *
  */
-public class MATSimCountingStateAnalyzer<L extends Object> {
+public class CountingStateAnalyzer<L extends Object> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -34,44 +31,27 @@ public class MATSimCountingStateAnalyzer<L extends Object> {
 	 */
 	private boolean locked = false;
 
-	private final DynamicData<Id<L>> counts;
+	private final DynamicData<L> counts;
 
-	private final Map<Id<L>, RecursiveCountAverage> location2avgCnt = new LinkedHashMap<>();
+	private final Map<L, RecursiveCountAverage> location2avgCnt = new LinkedHashMap<>();
 
 	private int lastCompletedBin = -1;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public MATSimCountingStateAnalyzer(final int startTime_s, final int binSize_s, final int binCnt) {
+	public CountingStateAnalyzer(final int startTime_s, final int binSize_s, final int binCnt) {
 		this.counts = new DynamicData<>(startTime_s, binSize_s, binCnt);
 		// this.reset(-1);
-		this.beforeIteration();
+		this.reset();
 	}
 
-	public MATSimCountingStateAnalyzer(final TimeDiscretization timeDiscr) {
+	public CountingStateAnalyzer(final TimeDiscretization timeDiscr) {
 		this(timeDiscr.getStartTime_s(), timeDiscr.getBinSize_s(), timeDiscr.getBinCnt());
 	}
 
-	// -------------------- IMPLEMENTATION OF EventHandler --------------------
-
-	public void beforeIteration() {
-		this.locked = false;
-		this.counts.clear();
-		this.location2avgCnt.clear();
-		this.lastCompletedBin = -1;
-	}
-
-	// @Override
-	// public void reset(final int iteration) {
-	// this.locked = false;
-	// this.counts.clear();
-	// this.location2avgCnt.clear();
-	// this.lastCompletedBin = -1;
-	// }
-
 	// -------------------- INTERNALS --------------------
 
-	private void checkLocked() {
+	private void checkNotLocked() {
 		if (this.locked) {
 			throw new RuntimeException(this.getClass().getSimpleName() + " is locked and cannot accept more data.");
 		}
@@ -85,7 +65,7 @@ public class MATSimCountingStateAnalyzer<L extends Object> {
 		while (this.lastCompletedBin < lastBinToComplete) {
 			this.lastCompletedBin++; // is now zero or larger
 			final int lastCompletedBinEndTime = this.lastCompletedBinEndTime();
-			for (Map.Entry<Id<L>, RecursiveCountAverage> link2avgEntry : this.location2avgCnt.entrySet()) {
+			for (Map.Entry<L, RecursiveCountAverage> link2avgEntry : this.location2avgCnt.entrySet()) {
 				link2avgEntry.getValue().advanceTo(lastCompletedBinEndTime);
 				this.counts.put(link2avgEntry.getKey(), this.lastCompletedBin, link2avgEntry.getValue().getAverage());
 				link2avgEntry.getValue().resetTime(lastCompletedBinEndTime);
@@ -98,7 +78,7 @@ public class MATSimCountingStateAnalyzer<L extends Object> {
 		this.completeBins(min(lastBinToComplete, this.counts.getBinCnt() - 1));
 	}
 
-	private RecursiveCountAverage avg(final Id<L> link) {
+	private RecursiveCountAverage avg(final L link) {
 		RecursiveCountAverage avg = this.location2avgCnt.get(link);
 		if (avg == null) {
 			avg = new RecursiveCountAverage(this.lastCompletedBinEndTime());
@@ -109,14 +89,21 @@ public class MATSimCountingStateAnalyzer<L extends Object> {
 
 	// -------------------- SETTERS --------------------
 
-	public void registerIncrease(final Id<L> location, final int time_s) {
-		this.checkLocked();
+	public void reset() {
+		this.locked = false;
+		this.counts.clear();
+		this.location2avgCnt.clear();
+		this.lastCompletedBin = -1;
+	}
+
+	public void registerIncrease(final L location, final int time_s) {
+		this.checkNotLocked();
 		this.completeBinsUntilTime(time_s);
 		this.avg(location).inc(time_s);
 	}
 
-	public void registerDecrease(final Id<L> location, final int time_s) {
-		this.checkLocked();
+	public void registerDecrease(final L location, final int time_s) {
+		this.checkNotLocked();
 		this.completeBinsUntilTime(time_s);
 		this.avg(location).dec(time_s);
 	}
@@ -128,11 +115,12 @@ public class MATSimCountingStateAnalyzer<L extends Object> {
 
 	// -------------------- GETTERS --------------------
 
-	public Set<Id<L>> observedLinkSetView() {
+	public Set<L> observedLinkSetView() {
+		this.finalizeAndLock();
 		return Collections.unmodifiableSet(this.counts.keySet());
 	}
 
-	public double getCount(final Id<L> link, final int bin) {
+	public double getCount(final L link, final int bin) {
 		this.finalizeAndLock();
 		return this.counts.getBinValue(link, bin);
 	}
