@@ -2,7 +2,7 @@ package org.matsim.contrib.opdyts.example.networkparameters;
 
 import floetteroed.utilities.math.Vector;
 import org.matsim.api.core.v01.population.Population;
-import org.matsim.contrib.opdyts.MATSimState;
+import org.matsim.contrib.opdyts.microstate.MATSimState;
 
 /**
  * This is only to show that one can create own states that carry more

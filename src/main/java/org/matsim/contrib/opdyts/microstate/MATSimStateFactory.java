@@ -1,9 +1,9 @@
-package org.matsim.contrib.opdyts;
+package org.matsim.contrib.opdyts.microstate;
+
+import org.matsim.api.core.v01.population.Population;
 
 import floetteroed.opdyts.DecisionVariable;
 import floetteroed.utilities.math.Vector;
-import org.matsim.api.core.v01.population.Population;
-import org.matsim.core.controler.Controler;
 
 /**
  * A factory for MATSim simulation states.
@@ -16,20 +16,12 @@ import org.matsim.core.controler.Controler;
 public interface MATSimStateFactory<U extends DecisionVariable> {
 
 	/**
-	 * Because the controler is created after this factory.
+	 * Creates a new object representation of the current MATSim simulation state.
 	 * 
-	 * TODO What could this be good for? Is it used at all?
-	 */
-	public void registerControler(final Controler controler);
-
-	/**
-	 * Creates a new object representation of the current MATSim simulation
-	 * state.
-	 * 
-	 * IMPORTANT: Do not take over a controler reference into the state object
-	 * and attempt to compute state properties (such as objective function
-	 * values) on the fly. Instead, compute all relevant state attributes
-	 * explicitly when creating the state object.
+	 * IMPORTANT: Do not take over a controler reference into the state object and
+	 * attempt to compute state properties (such as objective function values) on
+	 * the fly. Instead, compute all relevant state attributes explicitly when
+	 * creating the state object.
 	 * 
 	 * @see MATSimState
 	 * 

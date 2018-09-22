@@ -1,4 +1,4 @@
-package org.matsim.contrib.opdyts.stateextraction;
+package org.matsim.contrib.opdyts.macrostate;
 
 import static java.lang.Math.min;
 

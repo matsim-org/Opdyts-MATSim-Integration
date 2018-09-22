@@ -6,8 +6,8 @@ import java.util.Set;
 
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.opdyts.MATSimSimulator2;
+import org.matsim.contrib.opdyts.macrostate.DifferentiatedLinkOccupancyAnalyzer;
 import org.matsim.contrib.opdyts.pt.PTOccupancyAnalyzer;
-import org.matsim.contrib.opdyts.stateextraction.DifferentiatedLinkOccupancyAnalyzer;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.gbl.MatsimRandom;
 

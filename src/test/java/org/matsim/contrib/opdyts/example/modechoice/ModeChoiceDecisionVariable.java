@@ -17,7 +17,7 @@
  *                                                                         *
  * *********************************************************************** */
 
-package org.matsim.contrib.opdyts.modeChoice;
+package org.matsim.contrib.opdyts.example.modechoice;
 
 import java.util.Map;
 import floetteroed.opdyts.DecisionVariable;

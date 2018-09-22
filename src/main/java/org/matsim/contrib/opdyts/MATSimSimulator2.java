@@ -8,6 +8,7 @@ import floetteroed.opdyts.SimulatorState;
 import floetteroed.opdyts.searchalgorithms.Simulator;
 import floetteroed.opdyts.trajectorysampling.TrajectorySampler;
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.contrib.opdyts.microstate.MATSimStateFactory;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.TerminationCriterion;
@@ -162,7 +163,7 @@ public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U
 			controler.setScoringFunctionFactory(this.scoringFunctionFactory);
 		}
 
-		this.stateFactory.registerControler(controler);
+//		this.stateFactory.registerControler(controler);
 
 		controler.run();
 //		this.nextControlerRun++;

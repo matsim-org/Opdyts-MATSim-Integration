@@ -1,4 +1,4 @@
-package org.matsim.contrib.opdyts;
+package org.matsim.contrib.opdyts.microstate;
 
 import java.util.*;
 import floetteroed.opdyts.SimulatorState;
@@ -74,7 +74,6 @@ public class MATSimState implements SimulatorState {
 			this.person2planList.put(person.getId(),
 					newDeepCopy(person.getPlans()));
 		}
-
 		this.vectorRepresentation = vectorRepresentation;
 	}
 

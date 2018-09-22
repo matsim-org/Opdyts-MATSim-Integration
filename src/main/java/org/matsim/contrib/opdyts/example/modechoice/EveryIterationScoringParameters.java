@@ -16,7 +16,7 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package org.matsim.contrib.opdyts.useCases.modeChoice;
+package org.matsim.contrib.opdyts.example.modechoice;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package org.matsim.contrib.opdyts.stateextraction;
+package org.matsim.contrib.opdyts.macrostate;
 
 /**
  * Computes recursively the average value of an integer counting process over a

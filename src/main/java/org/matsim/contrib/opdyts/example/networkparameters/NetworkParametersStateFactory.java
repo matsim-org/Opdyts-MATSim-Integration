@@ -2,8 +2,8 @@ package org.matsim.contrib.opdyts.example.networkparameters;
 
 import floetteroed.utilities.math.Vector;
 import org.matsim.api.core.v01.population.Population;
-import org.matsim.contrib.opdyts.MATSimState;
-import org.matsim.contrib.opdyts.MATSimStateFactory;
+import org.matsim.contrib.opdyts.microstate.MATSimState;
+import org.matsim.contrib.opdyts.microstate.MATSimStateFactory;
 import org.matsim.core.controler.Controler;
 
 /**
@@ -16,9 +16,5 @@ class NetworkParametersStateFactory implements MATSimStateFactory<NetworkParamet
 	@Override
 	public MATSimState newState(Population population, Vector stateVector, NetworkParameters decisionVariable) {
 		return new NetworkParametersState(population, stateVector);
-	}
-
-	@Override
-	public void registerControler(Controler controler) {
 	}
 }

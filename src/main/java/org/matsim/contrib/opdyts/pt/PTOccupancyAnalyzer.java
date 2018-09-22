@@ -14,7 +14,7 @@ import org.matsim.api.core.v01.events.handler.PersonStuckEventHandler;
 import org.matsim.api.core.v01.events.handler.TransitDriverStartsEventHandler;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.contrib.opdyts.SimulationStateAnalyzerProvider;
-import org.matsim.contrib.opdyts.stateextraction.CountingStateAnalyzer;
+import org.matsim.contrib.opdyts.macrostate.CountingStateAnalyzer;
 import org.matsim.core.api.experimental.events.AgentWaitingForPtEvent;
 import org.matsim.core.api.experimental.events.handler.AgentWaitingForPtEventHandler;
 import org.matsim.core.events.handler.EventHandler;

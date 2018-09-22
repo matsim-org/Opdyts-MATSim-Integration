@@ -17,7 +17,7 @@
  *                                                                         *
  * *********************************************************************** */
 
-package org.matsim.contrib.opdyts.modeChoice;
+package org.matsim.contrib.opdyts.example.modechoice;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,8 +35,8 @@ import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.population.Plan;
 import org.matsim.api.core.v01.population.PlanElement;
 import org.matsim.contrib.opdyts.MATSimSimulator2;
-import org.matsim.contrib.opdyts.MATSimStateFactoryImpl;
-import org.matsim.contrib.opdyts.useCases.modeChoice.EveryIterationScoringParameters;
+import org.matsim.contrib.opdyts.example.modechoice.EveryIterationScoringParameters;
+import org.matsim.contrib.opdyts.microstate.MATSimStateFactoryImpl;
 import org.matsim.contrib.opdyts.utils.MATSimOpdytsControler;
 import org.matsim.contrib.opdyts.utils.OpdytsConfigGroup;
 import org.matsim.core.config.Config;
