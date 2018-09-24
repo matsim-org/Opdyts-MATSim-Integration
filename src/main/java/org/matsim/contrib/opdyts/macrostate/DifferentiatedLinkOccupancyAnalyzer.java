@@ -1,5 +1,6 @@
 package org.matsim.contrib.opdyts.macrostate;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -16,8 +17,7 @@ import org.matsim.api.core.v01.events.handler.VehicleAbortsEventHandler;
 import org.matsim.api.core.v01.events.handler.VehicleEntersTrafficEventHandler;
 import org.matsim.api.core.v01.events.handler.VehicleLeavesTrafficEventHandler;
 import org.matsim.api.core.v01.network.Link;
-import org.matsim.contrib.opdyts.SimulationStateAnalyzerProvider;
-import org.matsim.core.events.handler.EventHandler;
+import org.matsim.contrib.opdyts.SimulationMacroStateAnalyzer;
 import org.matsim.vehicles.Vehicle;
 
 import floetteroed.utilities.TimeDiscretization;
@@ -29,51 +29,68 @@ import floetteroed.utilities.math.Vector;
  * @author Gunnar Flötteröd
  *
  */
-public class DifferentiatedLinkOccupancyAnalyzer implements LinkLeaveEventHandler, LinkEnterEventHandler,
+public class DifferentiatedLinkOccupancyAnalyzer
+		implements SimulationMacroStateAnalyzer, LinkLeaveEventHandler, LinkEnterEventHandler,
 		VehicleEntersTrafficEventHandler, VehicleLeavesTrafficEventHandler, VehicleAbortsEventHandler {
+
+	// -------------------- CONSTANTS --------------------
+
+	private final TimeDiscretization timeDiscretization;
+
+	private final Set<Id<Link>> relevantLinks;
 
 	// -------------------- MEMBERS --------------------
 
 	// one occupancy analyzer per mode. package private for unit testing.
-	final Map<String, CountingStateAnalyzer<Id<Link>>> mode2stateAnalyzer;
-
-	// where occupancies are to be tracked
-	private final Set<Id<Link>> relevantLinks;
+	/* package */ final Map<String, CountingStateAnalyzer<Id<Link>>> mode2stateAnalyzer;
 
 	// fast occupancy analyzer lookup for each currently traveling vehicle
-	private Map<Id<Vehicle>, CountingStateAnalyzer<Id<Link>>> vehicleId2stateAnalyzer = null;
+	private final Map<Id<Vehicle>, CountingStateAnalyzer<Id<Link>>> vehicleId2stateAnalyzer = new LinkedHashMap<>();
 
 	// -------------------- CONSTRUCTION --------------------
 
 	public DifferentiatedLinkOccupancyAnalyzer(final TimeDiscretization timeDiscretization,
 			final Set<String> relevantModes, final Set<Id<Link>> relevantLinks) {
+		this.timeDiscretization = timeDiscretization;
+		this.relevantLinks = relevantLinks;
 		this.mode2stateAnalyzer = new LinkedHashMap<>();
 		for (String mode : relevantModes) {
-			this.mode2stateAnalyzer.put(mode, new CountingStateAnalyzer<Id<Link>>(timeDiscretization));
+			this.mode2stateAnalyzer.put(mode, null);
 		}
-		this.relevantLinks = relevantLinks;
+		this.clear();
 	}
 
-	// -------------------- INTERNALS --------------------
+	// --------------- IMPLEMENTATION OF SimulationStateAnalyzer ---------------
 
-	private boolean relevantLink(final Id<Link> link) {
-		return ((this.relevantLinks == null) || this.relevantLinks.contains(link));
+	@Override
+	public void clear() {
+		for (String mode : new ArrayList<>(this.mode2stateAnalyzer.keySet())) {
+			this.mode2stateAnalyzer.put(mode, new CountingStateAnalyzer<Id<Link>>(this.timeDiscretization));
+		}
+		this.vehicleId2stateAnalyzer.clear();
+	}
+
+	@Override
+	public Vector newStateVectorRepresentation() {
+		final Vector result = new Vector(
+				this.mode2stateAnalyzer.size() * this.relevantLinks.size() * this.timeDiscretization.getBinCnt());
+		int i = 0;
+		for (String mode : this.mode2stateAnalyzer.keySet()) {
+			final CountingStateAnalyzer<Id<Link>> analyzer = this.mode2stateAnalyzer.get(mode);
+			for (Id<Link> linkId : this.relevantLinks) {
+				for (int bin = 0; bin < this.timeDiscretization.getBinCnt(); bin++) {
+					result.set(i++, analyzer.getCount(linkId, bin));
+				}
+			}
+		}
+		return result;
 	}
 
 	// ---------- IMPLEMENTATION OF *EventHandler INTERFACES ----------
 
-	// This replaces EventHandler.reset(int), which appears to be called before
-	// the "before mobsim" hook.
-	public void beforeIteration() {
-		for (CountingStateAnalyzer<?> stateAnalyzer : this.mode2stateAnalyzer.values()) {
-			stateAnalyzer.reset();
-		}
-		this.vehicleId2stateAnalyzer = new LinkedHashMap<>();
-	}
-
 	@Override
 	public void reset(final int iteration) {
-		// see the explanation of beforeIteration()
+		// leave that to clear()
 	}
 
 	@Override
@@ -81,7 +98,7 @@ public class DifferentiatedLinkOccupancyAnalyzer implements LinkLeaveEventHandle
 		final CountingStateAnalyzer<Id<Link>> stateAnalyzer = this.mode2stateAnalyzer.get(event.getNetworkMode());
 		if (stateAnalyzer != null) { // relevantMode
 			this.vehicleId2stateAnalyzer.put(event.getVehicleId(), stateAnalyzer);
-			if (this.relevantLink(event.getLinkId())) {
+			if (this.relevantLinks.contains(event.getLinkId())) {
 				stateAnalyzer.registerIncrease(event.getLinkId(), (int) event.getTime());
 			}
 		}
@@ -91,7 +108,7 @@ public class DifferentiatedLinkOccupancyAnalyzer implements LinkLeaveEventHandle
 	public void handleEvent(final VehicleLeavesTrafficEvent event) {
 		final CountingStateAnalyzer<Id<Link>> stateAnalyzer = this.vehicleId2stateAnalyzer.get(event.getVehicleId());
 		if (stateAnalyzer != null) { // relevant mode
-			if (this.relevantLink(event.getLinkId())) {
+			if (this.relevantLinks.contains(event.getLinkId())) {
 				stateAnalyzer.registerDecrease(event.getLinkId(), (int) event.getTime());
 			}
 			this.vehicleId2stateAnalyzer.remove(event.getVehicleId());
@@ -102,7 +119,7 @@ public class DifferentiatedLinkOccupancyAnalyzer implements LinkLeaveEventHandle
 	public void handleEvent(final LinkEnterEvent event) {
 		final CountingStateAnalyzer<Id<Link>> stateAnalyzer = this.vehicleId2stateAnalyzer.get(event.getVehicleId());
 		if (stateAnalyzer != null) { // relevant mode
-			if (this.relevantLink(event.getLinkId())) {
+			if (this.relevantLinks.contains(event.getLinkId())) {
 				stateAnalyzer.registerIncrease(event.getLinkId(), (int) event.getTime());
 			}
 		}
@@ -112,7 +129,7 @@ public class DifferentiatedLinkOccupancyAnalyzer implements LinkLeaveEventHandle
 	public void handleEvent(final LinkLeaveEvent event) {
 		final CountingStateAnalyzer<Id<Link>> stateAnalyzer = this.vehicleId2stateAnalyzer.get(event.getVehicleId());
 		if (stateAnalyzer != null) { // relevant mode
-			if (this.relevantLink(event.getLinkId())) {
+			if (this.relevantLinks.contains(event.getLinkId())) {
 				stateAnalyzer.registerDecrease(event.getLinkId(), (int) event.getTime());
 			}
 		}
@@ -122,72 +139,11 @@ public class DifferentiatedLinkOccupancyAnalyzer implements LinkLeaveEventHandle
 	public void handleEvent(final VehicleAbortsEvent event) {
 		final CountingStateAnalyzer<Id<Link>> stateAnalyzer = this.vehicleId2stateAnalyzer.get(event.getVehicleId());
 		if (stateAnalyzer != null) { // relevant mode
-			if (this.relevantLink(event.getLinkId())) {
+			if (this.relevantLinks.contains(event.getLinkId())) {
 				stateAnalyzer.registerDecrease(event.getLinkId(), (int) event.getTime());
 			}
 			// TODO: Based on the assumption "abort = abort trip".
 			this.vehicleId2stateAnalyzer.remove(event.getVehicleId());
 		}
 	}
-
-	// ==================== INNER PROVIDER CLASS ====================
-
-	public static class Provider implements SimulationStateAnalyzerProvider {
-
-		// -------------------- MEMBERS --------------------
-
-		private final TimeDiscretization timeDiscretization;
-
-		private final Set<String> relevantModes;
-
-		private final Set<Id<Link>> relevantLinks;
-
-		private DifferentiatedLinkOccupancyAnalyzer linkOccupancyAnalyzer = null;
-
-		// -------------------- CONSTRUCTION --------------------
-
-		public Provider(final TimeDiscretization timeDiscretization, final Set<String> relevantModes,
-				final Set<Id<Link>> relevantLinks) {
-			this.timeDiscretization = timeDiscretization;
-			this.relevantModes = relevantModes;
-			this.relevantLinks = relevantLinks;
-		}
-
-		// ----- IMPLEMENTATION OF SimulationStateAnalyzerProvider -----
-
-		@Override
-		public String getStringIdentifier() {
-			return "networkModes";
-		}
-
-		@Override
-		public EventHandler newEventHandler() {
-			this.linkOccupancyAnalyzer = new DifferentiatedLinkOccupancyAnalyzer(this.timeDiscretization,
-					this.relevantModes, this.relevantLinks);
-			return this.linkOccupancyAnalyzer;
-		}
-
-		@Override
-		public Vector newStateVectorRepresentation() {
-			final Vector result = new Vector(this.linkOccupancyAnalyzer.mode2stateAnalyzer.size()
-					* this.relevantLinks.size() * this.timeDiscretization.getBinCnt());
-			int i = 0;
-			for (String mode : this.linkOccupancyAnalyzer.mode2stateAnalyzer.keySet()) {
-				final CountingStateAnalyzer<Id<Link>> analyzer = this.linkOccupancyAnalyzer.mode2stateAnalyzer
-						.get(mode);
-				for (Id<Link> linkId : this.relevantLinks) {
-					for (int bin = 0; bin < this.timeDiscretization.getBinCnt(); bin++) {
-						result.set(i++, analyzer.getCount(linkId, bin));
-					}
-				}
-			}
-			return result;
-		}
-
-		@Override
-		public void beforeIteration() {
-			this.linkOccupancyAnalyzer.beforeIteration();
-		}
-	}
-
 }

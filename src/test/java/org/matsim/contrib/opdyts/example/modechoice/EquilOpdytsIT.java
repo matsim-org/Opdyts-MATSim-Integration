@@ -35,7 +35,7 @@ import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.population.Plan;
 import org.matsim.api.core.v01.population.PlanElement;
 import org.matsim.contrib.opdyts.MATSimOpdytsRunner;
-import org.matsim.contrib.opdyts.MATSimSimulator2;
+import org.matsim.contrib.opdyts.MATSimSimulationWrapper;
 import org.matsim.contrib.opdyts.OpdytsConfigGroup;
 import org.matsim.contrib.opdyts.example.modechoice.EveryIterationScoringParameters;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactoryImpl;
@@ -111,7 +111,7 @@ public class EquilOpdytsIT {
 
         MATSimOpdytsRunner<ModeChoiceDecisionVariable> runner = new MATSimOpdytsRunner<>(scenario);
 
-        MATSimSimulator2<ModeChoiceDecisionVariable> simulator = new MATSimSimulator2<ModeChoiceDecisionVariable>(new MATSimStateFactoryImpl<>(), scenario);
+        MATSimSimulationWrapper<ModeChoiceDecisionVariable> simulator = new MATSimSimulationWrapper<ModeChoiceDecisionVariable>(new MATSimStateFactoryImpl<>(), scenario);
         simulator.addOverridingModule(new AbstractModule() {
 
             @Override

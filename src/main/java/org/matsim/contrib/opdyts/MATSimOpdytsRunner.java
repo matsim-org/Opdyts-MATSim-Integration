@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.opdyts.macrostate.DifferentiatedLinkOccupancyAnalyzer;
-import org.matsim.contrib.opdyts.pt.PTOccupancyAnalyzer;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.gbl.MatsimRandom;
 
@@ -16,6 +15,7 @@ import floetteroed.opdyts.ObjectiveFunction;
 import floetteroed.opdyts.convergencecriteria.ConvergenceCriterion;
 import floetteroed.opdyts.convergencecriteria.FixedIterationNumberConvergenceCriterion;
 import floetteroed.opdyts.searchalgorithms.RandomSearch;
+import floetteroed.opdyts.searchalgorithms.RandomSearchBuilder;
 import floetteroed.opdyts.searchalgorithms.SelfTuner;
 import floetteroed.utilities.TimeDiscretization;
 
@@ -29,9 +29,13 @@ public class MATSimOpdytsRunner<U extends DecisionVariable> {
 	// -------------------- MEMBERS --------------------
 
 	private final OpdytsConfigGroup opdytsConfig;
+
 	private TimeDiscretization timeDiscretization;
+
 	private ConvergenceCriterion convergenceCriterion;
+
 	private RandomSearch<U> randomSearch;
+
 	private Scenario scenario;
 
 	// -------------------- CONSTRUCTION --------------------
@@ -43,7 +47,7 @@ public class MATSimOpdytsRunner<U extends DecisionVariable> {
 		this.scenario = scenario;
 	}
 
-	// -------------------- IMPLEMENTATION --------------------
+	// -------------------- INTERNALS --------------------
 
 	private FixedIterationNumberConvergenceCriterion newFixedIterationNumberConvergenceCriterion() {
 		return new FixedIterationNumberConvergenceCriterion(this.opdytsConfig.getNumberOfIterationsForConvergence(),
@@ -55,11 +59,11 @@ public class MATSimOpdytsRunner<U extends DecisionVariable> {
 				this.opdytsConfig.getBinCount());
 	}
 
+	// -------------------- IMPLEMENTATION --------------------
+
 	// alternatively, one can set all arguments via setters/builders. Amit July'17
-	public void run(final MATSimSimulator2<U> matsim,
-					final DecisionVariableRandomizer<U> randomizer,
-					final U initialDecisionVariable,
-					final ObjectiveFunction objectiveFunction) {
+	public void run(final MATSimSimulationWrapper<U> matsim, final DecisionVariableRandomizer<U> randomizer,
+			final U initialDecisionVariable, final ObjectiveFunction objectiveFunction) {
 
 		final RandomSearch<U> result = new RandomSearch<U>(matsim, randomizer, initialDecisionVariable,
 				convergenceCriterion, this.opdytsConfig.getMaxIteration(), this.opdytsConfig.getMaxTransition(),
@@ -86,12 +90,53 @@ public class MATSimOpdytsRunner<U extends DecisionVariable> {
 		result.run();
 	}
 
-	public RandomSearch<U> getRandomSearch(){
-		return this.randomSearch ;
+	// TODO This is not yet in use. To replace the run() function once the config
+	// params are updated.
+	public void run2(final MATSimSimulationWrapper<U> matsim, final DecisionVariableRandomizer<U> randomizer,
+			final U initialDecisionVariable, final ObjectiveFunction objectiveFunction) {
+
+		final RandomSearchBuilder<U> builder = new RandomSearchBuilder<>();
+		builder.setConvergenceCriterion(this.convergenceCriterion).setInitialDecisionVariable(initialDecisionVariable)
+				.setMaxIterations(this.opdytsConfig.getMaxIteration())
+				.setMaxTransitions(opdytsConfig.getMaxTransition()).setObjectiveFunction(objectiveFunction)
+				.setPopulationSize(this.opdytsConfig.getPopulationSize()).setRandomizer(randomizer)
+				.setSimulator(matsim);
+
+		final RandomSearch<U> result = builder.build();
+
+		// final RandomSearch<U> result = new RandomSearch<U>(matsim, randomizer,
+		// initialDecisionVariable,
+		// convergenceCriterion, this.opdytsConfig.getMaxIteration(),
+		// this.opdytsConfig.getMaxTransition(),
+		// this.opdytsConfig.getPopulationSize(), objectiveFunction);
+		//
+		// result.setLogPath(this.opdytsConfig.getOutputDirectory());
+		// result.setMaxTotalMemory(this.opdytsConfig.getMaxTotalMemory());
+		// result.setMaxMemoryPerTrajectory(this.opdytsConfig.getMaxMemoryPerTrajectory());
+		// result.setIncludeCurrentBest(this.opdytsConfig.isIncludeCurrentBest());
+		// result.setRandom(MatsimRandom.getRandom());
+		// result.setInterpolate(this.opdytsConfig.isInterpolate());
+		// result.setWarmupIterations(this.opdytsConfig.getWarmUpIterations());
+		// result.setUseAllWarmupIterations(this.opdytsConfig.getUseAllWarmUpIterations());
+		// result.setInitialEquilibriumGapWeight(this.opdytsConfig.getEquilibriumGapWeight());
+		// result.setInitialUniformityGapWeight(this.opdytsConfig.getUniformityGapWeight());
+
+		final SelfTuner selfTuner = new SelfTuner(this.opdytsConfig.getInertia());
+		selfTuner.setNoisySystem(this.opdytsConfig.isNoisySystem());
+		selfTuner.setWeightScale(this.opdytsConfig.getSelfTuningWeight());
+		result.setSelfTuner(selfTuner);
+
+		this.randomSearch = result;
+
+		result.run();
 	}
 
-	//optional
-	public void setTimeDiscretization(TimeDiscretization timeDiscretization){
+	public RandomSearch<U> getRandomSearch() {
+		return this.randomSearch;
+	}
+
+	// optional
+	public void setTimeDiscretization(TimeDiscretization timeDiscretization) {
 		this.timeDiscretization = timeDiscretization;
 	}
 
@@ -99,38 +144,45 @@ public class MATSimOpdytsRunner<U extends DecisionVariable> {
 		return this.timeDiscretization;
 	}
 
-	//optional
-	public void setFixedIterationNumberConvergenceCriterion (ConvergenceCriterion convergenceCriterion) {
+	// optional
+	public void setFixedIterationNumberConvergenceCriterion(ConvergenceCriterion convergenceCriterion) {
 		this.convergenceCriterion = convergenceCriterion;
 	}
 
-	public ConvergenceCriterion getFixedIterationNumberConvergenceCriterion (){
+	public ConvergenceCriterion getFixedIterationNumberConvergenceCriterion() {
 		return this.convergenceCriterion;
 	}
 
-
-	//utils
-	public void addPublicTransportOccupancyAnalyzr(final MATSimSimulator2<U> matSimSimulator ){
-		if (scenario.getConfig().transit().isUseTransit()) {
-			matSimSimulator.addSimulationStateAnalyzer(new PTOccupancyAnalyzer.Provider(this.timeDiscretization,
-					new HashSet<>(scenario.getTransitSchedule().getFacilities().keySet())) );
-		} else {
-			throw new RuntimeException("Switch to use transit is off.");
-		}
+	// utils
+	public void addPublicTransportOccupancyAnalyzr(final MATSimSimulationWrapper<U> matSimSimulator) {
+		throw new UnsupportedOperationException("Need to revisit what sensible pt macro states would be.");
+		// if (scenario.getConfig().transit().isUseTransit()) {
+		// matSimSimulator.addSimulationStateAnalyzer(new
+		// PTOccupancyAnalyzer.Provider(this.timeDiscretization,
+		// new HashSet<>(scenario.getTransitSchedule().getFacilities().keySet())));
+		// } else {
+		// throw new RuntimeException("Switch to use transit is off.");
+		// }
 	}
 
-	public void addNetworkModeOccupancyAnalyzr(final MATSimSimulator2<U> matSimSimulator ){
-		// the name is not necessarily exactly same as network modes in MATSim PlansCalcRouteConfigGroup.
+	public void addNetworkModeOccupancyAnalyzr(final MATSimSimulationWrapper<U> matSimSimulator) {
+		// the name is not necessarily exactly same as network modes in MATSim
+		// PlansCalcRouteConfigGroup.
 		// Here, this means, which needs to be counted on the links.
-		// cant take network modes from PlansCalcRouteConfigGroup because this may have additional modes in there
+		// cant take network modes from PlansCalcRouteConfigGroup because this may have
+		// additional modes in there
 		// however, this must be same as analyzeModes in TravelTimeCalculatorConfigGroup
 		Set<String> networkModes = new HashSet<>(scenario.getConfig().qsim().getMainModes());
 
 		// add for network modes
 		if (networkModes.size() > 0.) {
-			matSimSimulator.addSimulationStateAnalyzer(new DifferentiatedLinkOccupancyAnalyzer.Provider(this.timeDiscretization,
-					networkModes,
-					new LinkedHashSet<>(scenario.getNetwork().getLinks().keySet())));
+			// TODO NEW 2018-09-24
+			matSimSimulator.addSimulationStateAnalyzer(new DifferentiatedLinkOccupancyAnalyzer(this.timeDiscretization,
+					networkModes, new LinkedHashSet<>(scenario.getNetwork().getLinks().keySet())));
+			// matSimSimulator.addSimulationStateAnalyzer(new
+			// DifferentiatedLinkOccupancyAnalyzer.Factory(this.timeDiscretization,
+			// networkModes,
+			// new LinkedHashSet<>(scenario.getNetwork().getLinks().keySet())));
 		}
 	}
 }

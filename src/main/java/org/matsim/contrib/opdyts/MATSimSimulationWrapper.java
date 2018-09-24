@@ -3,10 +3,7 @@ package org.matsim.contrib.opdyts;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import floetteroed.opdyts.DecisionVariable;
-import floetteroed.opdyts.SimulatorState;
-import floetteroed.opdyts.searchalgorithms.Simulator;
-import floetteroed.opdyts.trajectorysampling.TrajectorySampler;
+
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactory;
 import org.matsim.core.controler.AbstractModule;
@@ -14,12 +11,17 @@ import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.TerminationCriterion;
 import org.matsim.core.scoring.ScoringFunctionFactory;
 
+import floetteroed.opdyts.DecisionVariable;
+import floetteroed.opdyts.SimulatorState;
+import floetteroed.opdyts.searchalgorithms.Simulator;
+import floetteroed.opdyts.trajectorysampling.TrajectorySampler;
+
 /**
  * Created by michaelzilske on 08/10/15.
  * 
  * Modified by Gunnar, starting in December 2015.
  */
-public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U> {
+public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simulator<U> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -30,7 +32,7 @@ public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U
 	private AbstractModule[] replacingModules = null;
 	private AbstractModule overrides = AbstractModule.emptyModule();
 
-//	private int nextControlerRun = 0;
+	// private int nextControlerRun = 0;
 	private final OpdytsIterationWrapper opdytsIterationWrapper = new OpdytsIterationWrapper();
 
 	private ScoringFunctionFactory scoringFunctionFactory = null;
@@ -39,10 +41,10 @@ public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U
 
 	// TODO not elegant
 	// a list because the order matters in the state space vector
-	private final List<SimulationStateAnalyzerProvider> simulationStateAnalyzers = new ArrayList<>();
+	private final List<SimulationMacroStateAnalyzer> simulationStateAnalyzers = new ArrayList<>();
 
 	// TODO exists also in MATSimDecisionVariableSetEvaluator2
-	public void addSimulationStateAnalyzer(final SimulationStateAnalyzerProvider analyzer) {
+	public void addSimulationStateAnalyzer(final SimulationMacroStateAnalyzer analyzer) {
 		if (this.simulationStateAnalyzers.contains(analyzer)) {
 			throw new RuntimeException("Analyzer " + analyzer + " has already been added.");
 		}
@@ -51,7 +53,7 @@ public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U
 
 	// -------------------- CONSTRUCTOR --------------------
 
-	public MATSimSimulator2(final MATSimStateFactory<U> stateFactory, final Scenario scenario) {
+	public MATSimSimulationWrapper(final MATSimStateFactory<U> stateFactory, final Scenario scenario) {
 		this.stateFactory = stateFactory;
 		this.scenario = scenario;
 
@@ -89,15 +91,15 @@ public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U
 	public SimulatorState run(final TrajectorySampler<U> trajectorySampler) {
 
 		/*
-		 * (1) This function is called in many iterations. Each time, it
-		 * executes a complete MATSim run. To avoid that the MATSim output files
-		 * are overwritten each time, set iteration-specific output directory
-		 * names.
+		 * (1) This function is called in many iterations. Each time, it executes a
+		 * complete MATSim run. To avoid that the MATSim output files are overwritten
+		 * each time, set iteration-specific output directory names.
 		 */
 		String outputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
-//		outputDirectory = outputDirectory.substring(0, outputDirectory.lastIndexOf("_")) + "_" + this.nextControlerRun;
-		outputDirectory = outputDirectory.substring(0, outputDirectory.lastIndexOf("_")) + "_" + this.opdytsIterationWrapper
-				.getIteration();
+		// outputDirectory = outputDirectory.substring(0,
+		// outputDirectory.lastIndexOf("_")) + "_" + this.nextControlerRun;
+		outputDirectory = outputDirectory.substring(0, outputDirectory.lastIndexOf("_")) + "_"
+				+ this.opdytsIterationWrapper.getIteration();
 		this.scenario.getConfig().controler().setOutputDirectory(outputDirectory);
 
 		/*
@@ -106,11 +108,11 @@ public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U
 		 */
 		final MATSimDecisionVariableSetEvaluator2<U> matsimDecisionVariableEvaluator = new MATSimDecisionVariableSetEvaluator2<>(
 				trajectorySampler, this.stateFactory);
-		
-		for (SimulationStateAnalyzerProvider analyzer : this.simulationStateAnalyzers) {
+
+		for (SimulationMacroStateAnalyzer analyzer : this.simulationStateAnalyzers) {
 			matsimDecisionVariableEvaluator.addSimulationStateAnalyzer(analyzer);
 		}
-		
+
 		matsimDecisionVariableEvaluator.setMemory(this.stateMemory);
 
 		/*
@@ -163,10 +165,10 @@ public class MATSimSimulator2<U extends DecisionVariable> implements Simulator<U
 			controler.setScoringFunctionFactory(this.scoringFunctionFactory);
 		}
 
-//		this.stateFactory.registerControler(controler);
+		// this.stateFactory.registerControler(controler);
 
 		controler.run();
-//		this.nextControlerRun++;
+		// this.nextControlerRun++;
 		this.opdytsIterationWrapper.nextIteration();
 		return matsimDecisionVariableEvaluator.getFinalState();
 	}
