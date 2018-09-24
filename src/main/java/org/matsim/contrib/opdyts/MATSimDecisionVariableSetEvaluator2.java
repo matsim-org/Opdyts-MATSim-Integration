@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.population.Population;
 import org.matsim.contrib.opdyts.microstate.MATSimState;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactory;
-import org.matsim.contrib.opdyts.utils.OpdytsConfigGroup;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.events.BeforeMobsimEvent;
@@ -37,8 +36,6 @@ public class MATSimDecisionVariableSetEvaluator2<U extends DecisionVariable>
 		implements StartupListener, BeforeMobsimListener, ShutdownListener {
 
 	// -------------------- MEMBERS --------------------
-
-	private static final Logger LOGGER = Logger.getLogger(MATSimDecisionVariableSetEvaluator2.class);
 
 	private final TrajectorySampler<U> trajectorySampler;
 
@@ -80,10 +77,6 @@ public class MATSimDecisionVariableSetEvaluator2<U extends DecisionVariable>
 
 	// -------------------- SETTERS AND GETTERS --------------------
 
-	public boolean foundSolution() {
-		return this.trajectorySampler.foundSolution();
-	}
-
 	/**
 	 * The vector representation of MATSim's instantaneous state omits some
 	 * memory effects, meaning that it is not perfectly precise. Setting the
@@ -115,6 +108,10 @@ public class MATSimDecisionVariableSetEvaluator2<U extends DecisionVariable>
 
 	public boolean getAverageMemory() {
 		return this.averageMemory;
+	}
+
+	public boolean foundSolution() {
+		return this.trajectorySampler.foundSolution();
 	}
 
 	public MATSimState getFinalState() {

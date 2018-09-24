@@ -28,7 +28,7 @@ import floetteroed.opdyts.DecisionVariableRandomizer;
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
-import org.matsim.contrib.opdyts.utils.OpdytsConfigGroup;
+import org.matsim.contrib.opdyts.OpdytsConfigGroup;
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup;
 
 public final class ModeChoiceRandomizer implements DecisionVariableRandomizer<ModeChoiceDecisionVariable> {

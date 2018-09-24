@@ -5,10 +5,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.contrib.opdyts.MATSimOpdytsRunner;
 import org.matsim.contrib.opdyts.MATSimSimulator2;
+import org.matsim.contrib.opdyts.OpdytsConfigGroup;
 import org.matsim.contrib.opdyts.macrostate.DifferentiatedLinkOccupancyAnalyzer;
-import org.matsim.contrib.opdyts.utils.MATSimOpdytsControler;
-import org.matsim.contrib.opdyts.utils.OpdytsConfigGroup;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.OutputDirectoryHierarchy;
@@ -63,7 +63,7 @@ public class RunNetworkParameters {
 
 		// <<<<<<<<<< SHOULD COME FROM FILE <<<<<<<<<<
 
-		MATSimOpdytsControler<NetworkParameters> factories = new MATSimOpdytsControler<>(scenario);
+		MATSimOpdytsRunner<NetworkParameters> factories = new MATSimOpdytsRunner<>(scenario);
 
 		/*
 		 * Define convergence criterion.

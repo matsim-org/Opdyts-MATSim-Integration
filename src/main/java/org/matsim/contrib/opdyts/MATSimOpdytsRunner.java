@@ -1,11 +1,10 @@
-package org.matsim.contrib.opdyts.utils;
+package org.matsim.contrib.opdyts;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.opdyts.MATSimSimulator2;
 import org.matsim.contrib.opdyts.macrostate.DifferentiatedLinkOccupancyAnalyzer;
 import org.matsim.contrib.opdyts.pt.PTOccupancyAnalyzer;
 import org.matsim.core.config.ConfigUtils;
@@ -25,7 +24,7 @@ import floetteroed.utilities.TimeDiscretization;
  * @author Gunnar Flötteröd
  *
  */
-public class MATSimOpdytsControler<U extends DecisionVariable> {
+public class MATSimOpdytsRunner<U extends DecisionVariable> {
 
 	// -------------------- MEMBERS --------------------
 
@@ -37,7 +36,7 @@ public class MATSimOpdytsControler<U extends DecisionVariable> {
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public MATSimOpdytsControler(final Scenario scenario) {
+	public MATSimOpdytsRunner(final Scenario scenario) {
 		this.opdytsConfig = ConfigUtils.addOrGetModule(scenario.getConfig(), OpdytsConfigGroup.class);
 		this.timeDiscretization = newTimeDiscretization();
 		this.convergenceCriterion = newFixedIterationNumberConvergenceCriterion();
