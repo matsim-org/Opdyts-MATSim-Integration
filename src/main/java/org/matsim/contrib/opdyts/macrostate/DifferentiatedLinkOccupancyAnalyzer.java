@@ -89,11 +89,6 @@ public class DifferentiatedLinkOccupancyAnalyzer
 	// ---------- IMPLEMENTATION OF *EventHandler INTERFACES ----------
 
 	@Override
-	public void reset(final int iteration) {
-		// leave that to clear()
-	}
-
-	@Override
 	public void handleEvent(final VehicleEntersTrafficEvent event) {
 		final CountingStateAnalyzer<Id<Link>> stateAnalyzer = this.mode2stateAnalyzer.get(event.getNetworkMode());
 		if (stateAnalyzer != null) { // relevantMode

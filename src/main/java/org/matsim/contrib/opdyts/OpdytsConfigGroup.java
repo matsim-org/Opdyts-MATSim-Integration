@@ -21,6 +21,9 @@ package org.matsim.contrib.opdyts;
 
 import org.matsim.core.config.ReflectiveConfigGroup;
 
+import floetteroed.opdyts.searchalgorithms.SelfTuner;
+import floetteroed.utilities.TimeDiscretization;
+
 /**
  * 
  * @author Amit, created this on 03.06.17.
@@ -49,7 +52,8 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	 */
 
 	private static final String START_TIME = "startTime";
-	private int startTime = 0;
+	public static final int DEFAULT_STARTTIME_S = 0;
+	private int startTime = DEFAULT_STARTTIME_S;
 
 	@StringGetter(START_TIME)
 	public int getStartTime() {
@@ -62,7 +66,8 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	}
 
 	private static final String BIN_SIZE = "binSize";
-	private int binSize = 3600;
+	public static final int DEFAULT_BINSIZE_S = 3600;
+	private int binSize = DEFAULT_BINSIZE_S;
 
 	@StringGetter(BIN_SIZE)
 	public int getBinSize() {
@@ -75,7 +80,8 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	}
 
 	private static final String BIN_COUNT = "binCount";
-	private int binCount = 24;
+	public static final int DEFAULT_BINCNT = 24;
+	private int binCount = DEFAULT_BINCNT;
 
 	@StringGetter(BIN_COUNT)
 	public int getBinCount() {
@@ -86,6 +92,82 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	public void setBinCount(int binCount) {
 		this.binCount = binCount;
 	}
+
+	public TimeDiscretization newTimeDiscretization() {
+		return new TimeDiscretization(this.getStartTime(), this.getBinSize(), this.getBinCount());
+	}
+
+	// ==================== SELF-TUNING ====================
+
+	private boolean noisySystem = SelfTuner.DEFAULT_NOISYSYSTEM;
+
+	@StringGetter("noisySystem")
+	public boolean isNoisySystem() {
+		return noisySystem;
+	}
+
+	@StringSetter("noisySystem")
+	public void setNoisySystem(boolean noisySystem) {
+		this.noisySystem = noisySystem;
+	}
+
+	private double selfTuningInertia = SelfTuner.DEFAULT_SELFTUNINGINERTIA;
+
+	@StringGetter("selfTuningInertia")
+	public double getInertia() {
+		return selfTuningInertia;
+	}
+
+	@StringSetter("selfTuningInertia")
+	public void setInertia(double inertia) {
+		this.selfTuningInertia = inertia;
+	}
+
+	private double selfTuningWeight = SelfTuner.DEFAULT_SELFTUNINGSCALE;
+
+	@StringGetter("selfTuningScale")
+	public double getSelfTuningWeight() {
+		return this.selfTuningWeight;
+	}
+
+	@StringSetter("selfTuningScale")
+	public void setSelfTuningWeight(double selfTuningWeight) {
+		this.selfTuningWeight = selfTuningWeight;
+	}
+
+	private double initialEquilibriumGapWeight = SelfTuner.DEFAULT_INITIALEQUILIBRIUMGAPWEIGHT;
+
+	@StringGetter("initialEquilibriumGapWeight")
+	public double getEquilibriumGapWeight() {
+		return initialEquilibriumGapWeight;
+	}
+
+	@StringSetter("initialEquilibriumGapWeight")
+	public void setEquilibriumGapWeight(double equilibriumGapWeight) {
+		this.initialEquilibriumGapWeight = equilibriumGapWeight;
+	}
+
+	private double initialUniformityGapWeight = SelfTuner.DEFAULT_INITIALUNIFORMITYGAPWEIGHT;
+
+	@StringGetter("initialUniformityGapWeight")
+	public double getUniformityGapWeight() {
+		return initialUniformityGapWeight;
+	}
+
+	@StringSetter("initialUniformityGapWeight")
+	public void setUniformityGapWeight(double uniformityGapWeight) {
+		this.initialUniformityGapWeight = uniformityGapWeight;
+	}
+
+	public SelfTuner newSelfTuner() {
+		final SelfTuner result = new SelfTuner(this.getEquilibriumGapWeight(), this.getUniformityGapWeight());
+		result.setInertia(this.getInertia());
+		result.setNoisySystem(this.noisySystem);
+		result.setWeightScale(this.getSelfTuningWeight());
+		return result;
+	}
+
+	// ==================== ====================
 
 	/*
 	 * The maximal memorized number of transitions in a simulation trajectory.
@@ -197,27 +279,10 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	}
 
 	/*
-	 * Indicates that there is stochasticity present in the simulation.
-	 */
-
-	private static final String NOISY_SYSTEM = "noisySystem";
-	private boolean noisySystem = true;
-
-	@StringGetter(NOISY_SYSTEM)
-	public boolean isNoisySystem() {
-		return noisySystem;
-	}
-
-	@StringSetter(NOISY_SYSTEM)
-	public void setNoisySystem(boolean noisySystem) {
-		this.noisySystem = noisySystem;
-	}
-
-	/*
 	 * How many candidate decision variables one wishes to create per optimization
 	 * stage.
 	 * 
-	 * TODO: Rename into something like numberOfCandidateDecisions.
+	 * TODO: Rename into something like numberOfCandidateDecisionVariables.
 	 */
 
 	private static final String POPULATION_SIZE = "populationSize";
@@ -243,63 +308,7 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 
 	// TODO Rename into selfTuningInertia
 
-	private static final String INERTIA = "inertia";
-	private double inertia = 0.90;
-
-	@StringGetter(INERTIA)
-	public double getInertia() {
-		return inertia;
-	}
-
-	@StringSetter(INERTIA)
-	public void setInertia(double inertia) {
-		this.inertia = inertia;
-	}
-
-	// TODO rename into selfTuningScale
-
-	private static final String SELF_TUNING_WEIGHT = "selfTuningWeight";
-	private double selfTuningWeight = 1.0;
-
-	@StringGetter(SELF_TUNING_WEIGHT)
-	public double getSelfTuningWeight() {
-		return this.selfTuningWeight;
-	}
-
-	@StringSetter(SELF_TUNING_WEIGHT)
-	public void setSelfTuningWeight(double selfTuningWeight) {
-		this.selfTuningWeight = selfTuningWeight;
-	}
-
 	// TODO rename into initialEquilbriumGapWeight
-
-	private static final String EQUILIBRIUM_GAP_WEIGHT = "equilibriumGapWeight";
-	private double equilibriumGapWeight = 0.;
-
-	@StringGetter(EQUILIBRIUM_GAP_WEIGHT)
-	public double getEquilibriumGapWeight() {
-		return equilibriumGapWeight;
-	}
-
-	@StringSetter(EQUILIBRIUM_GAP_WEIGHT)
-	public void setEquilibriumGapWeight(double equilibriumGapWeight) {
-		this.equilibriumGapWeight = equilibriumGapWeight;
-	}
-
-	// TODO rename into initialUniformityGapWeight
-
-	private static final String UNIFORMITY_GAP_WEIGHT = "uniformityGapWeight";
-	private double uniformityGapWeight = 0.;
-
-	@StringGetter(UNIFORMITY_GAP_WEIGHT)
-	public double getUniformityGapWeight() {
-		return uniformityGapWeight;
-	}
-
-	@StringSetter(UNIFORMITY_GAP_WEIGHT)
-	public void setUniformityGapWeight(double uniformityGapWeight) {
-		this.uniformityGapWeight = uniformityGapWeight;
-	}
 
 	/*
 	 * Parametrizes the default convergence criterion.
