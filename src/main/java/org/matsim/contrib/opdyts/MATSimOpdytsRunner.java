@@ -55,68 +55,76 @@ public class MATSimOpdytsRunner<U extends DecisionVariable> {
 	}
 
 	private TimeDiscretization newTimeDiscretization() {
-		return new TimeDiscretization(this.opdytsConfig.getStartTime(), this.opdytsConfig.getBinSize(),
+		return new TimeDiscretization(this.opdytsConfig.getStartTime_s(), this.opdytsConfig.getBinSize(),
 				this.opdytsConfig.getBinCount());
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
 
 	// alternatively, one can set all arguments via setters/builders. Amit July'17
-//	public void run(final MATSimSimulationWrapper<U> matsim, final DecisionVariableRandomizer<U> randomizer,
-//			final U initialDecisionVariable, final ObjectiveFunction objectiveFunction) {
-//
-//		final RandomSearch<U> result = new RandomSearch<U>(matsim, randomizer, initialDecisionVariable,
-//				convergenceCriterion, this.opdytsConfig.getMaxIteration(), this.opdytsConfig.getMaxTransition(),
-//				this.opdytsConfig.getPopulationSize(), objectiveFunction);
-//
-//		result.setLogPath(this.opdytsConfig.getOutputDirectory());
-//		result.setMaxTotalMemory(this.opdytsConfig.getMaxTotalMemory());
-//		result.setMaxMemoryPerTrajectory(this.opdytsConfig.getMaxMemoryPerTrajectory());
-//		result.setIncludeCurrentBest(this.opdytsConfig.isIncludeCurrentBest());
-//		result.setRandom(MatsimRandom.getRandom());
-//		result.setInterpolate(this.opdytsConfig.isInterpolate());
-//		result.setWarmupIterations(this.opdytsConfig.getWarmUpIterations());
-//		result.setUseAllWarmupIterations(this.opdytsConfig.getUseAllWarmUpIterations());
-//		result.setInitialEquilibriumGapWeight(this.opdytsConfig.getEquilibriumGapWeight());
-//		result.setInitialUniformityGapWeight(this.opdytsConfig.getUniformityGapWeight());
-//
-//		final SelfTuner selfTuner = new SelfTuner(this.opdytsConfig.getInertia());
-//		selfTuner.setNoisySystem(this.opdytsConfig.isNoisySystem());
-//		selfTuner.setWeightScale(this.opdytsConfig.getSelfTuningWeight());
-//		result.setSelfTuner(selfTuner);
-//
-//		this.randomSearch = result;
-//
-//		result.run();
-//	}
+	// public void run(final MATSimSimulationWrapper<U> matsim, final
+	// DecisionVariableRandomizer<U> randomizer,
+	// final U initialDecisionVariable, final ObjectiveFunction objectiveFunction) {
+	//
+	// final RandomSearch<U> result = new RandomSearch<U>(matsim, randomizer,
+	// initialDecisionVariable,
+	// convergenceCriterion, this.opdytsConfig.getMaxIteration(),
+	// this.opdytsConfig.getMaxTransition(),
+	// this.opdytsConfig.getPopulationSize(), objectiveFunction);
+	//
+	// result.setLogPath(this.opdytsConfig.getOutputDirectory());
+	// result.setMaxTotalMemory(this.opdytsConfig.getMaxTotalMemory());
+	// result.setMaxMemoryPerTrajectory(this.opdytsConfig.getMaxMemoryPerTrajectory());
+	// result.setIncludeCurrentBest(this.opdytsConfig.isIncludeCurrentBest());
+	// result.setRandom(MatsimRandom.getRandom());
+	// result.setInterpolate(this.opdytsConfig.isInterpolate());
+	// result.setWarmupIterations(this.opdytsConfig.getWarmUpIterations());
+	// result.setUseAllWarmupIterations(this.opdytsConfig.getUseAllWarmUpIterations());
+	// result.setInitialEquilibriumGapWeight(this.opdytsConfig.getEquilibriumGapWeight());
+	// result.setInitialUniformityGapWeight(this.opdytsConfig.getUniformityGapWeight());
+	//
+	// final SelfTuner selfTuner = new SelfTuner(this.opdytsConfig.getInertia());
+	// selfTuner.setNoisySystem(this.opdytsConfig.isNoisySystem());
+	// selfTuner.setWeightScale(this.opdytsConfig.getSelfTuningWeight());
+	// result.setSelfTuner(selfTuner);
+	//
+	// this.randomSearch = result;
+	//
+	// result.run();
+	// }
 
 	public void run(final MATSimSimulationWrapper<U> matsim, final DecisionVariableRandomizer<U> randomizer,
-			final U initialDecisionVariable, final ObjectiveFunction objectiveFunction,
-			final String outputPath) {
+			final U initialDecisionVariable, final ObjectiveFunction objectiveFunction, final String outputPath) {
 
+		final SelfTuner selfTuner = new SelfTuner(this.opdytsConfig.getInitialEquilibriumGapWeight(),
+				this.opdytsConfig.getInitialUniformityGapWeight());
+		selfTuner.setInertia(this.opdytsConfig.getInertia());
+		selfTuner.setNoisySystem(this.opdytsConfig.isNoisySystem());
+		selfTuner.setWeightScale(this.opdytsConfig.getSelfTuningWeightScale());
+		
 		final RandomSearchBuilder<U> builder = new RandomSearchBuilder<>();
 		builder.setConvergenceCriterion(this.convergenceCriterion).setDecisionVariableRandomizer(randomizer)
 				.setInitialDecisionVariable(initialDecisionVariable)
 				.setMaxOptimizationStages(this.opdytsConfig.getMaxIteration())
 				.setMaxSimulationTransitions(this.opdytsConfig.getMaxTransition())
 				.setObjectiveFunction(objectiveFunction).setRandom(MatsimRandom.getRandom())
-				.setSelfTuner(this.opdytsConfig.newSelfTuner()).setSimulator(matsim);
+				.setSelfTuner(selfTuner).setSimulator(matsim);
 		final RandomSearch<U> result = builder.build();
 
-//		System.out.println("outputPath == " + outputPath);
-//		System.out.println("scenario.getConfig().controler().getOutputDirectory() == " + scenario.getConfig().controler().getOutputDirectory());
-//		System.exit(0);
-		
-//		result.setLogPath(this.opdytsConfig.getOutputDirectory());
+		// System.out.println("outputPath == " + outputPath);
+		// System.out.println("scenario.getConfig().controler().getOutputDirectory() ==
+		// " + scenario.getConfig().controler().getOutputDirectory());
+		// System.exit(0);
+
+		// result.setLogPath(this.opdytsConfig.getOutputDirectory());
 		result.setLogPath(outputPath);
-		
-		
+
 		// result.setLogPath(scenario.getConfig().controler().getOutputDirectory());
 		result.setMaxTotalMemory(this.opdytsConfig.getMaxTotalMemory());
 		result.setMaxMemoryPerTrajectory(this.opdytsConfig.getMaxMemoryPerTrajectory());
 		result.setWarmupIterations(this.opdytsConfig.getWarmUpIterations());
 		result.setUseAllWarmupIterations(this.opdytsConfig.getUseAllWarmUpIterations());
-		
+
 		// final RandomSearch<U> result = new RandomSearch<U>(matsim, randomizer,
 		// initialDecisionVariable,
 		// convergenceCriterion, this.opdytsConfig.getMaxIteration(),

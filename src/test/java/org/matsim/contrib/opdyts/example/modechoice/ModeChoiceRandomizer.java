@@ -24,12 +24,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import floetteroed.opdyts.DecisionVariableRandomizer;
+
 import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.contrib.opdyts.OpdytsConfigGroup;
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup;
+
+import floetteroed.opdyts.DecisionVariableRandomizer;
 
 public final class ModeChoiceRandomizer implements DecisionVariableRandomizer<ModeChoiceDecisionVariable> {
     private static final Logger log = Logger.getLogger(ModeChoiceRandomizer.class);
@@ -38,13 +40,16 @@ public final class ModeChoiceRandomizer implements DecisionVariableRandomizer<Mo
     private final Random rnd;
 
     private final OpdytsConfigGroup opdytsConfigGroup;
+    private final OpdytsExperimentalConfigGroup opdytsExperimentalConfigGroup;
     private final Collection<String> consideredModes;
 
-    public ModeChoiceRandomizer(final Scenario scenario, final Collection<String> consideredModes) {
+    public ModeChoiceRandomizer(final Scenario scenario, final Collection<String> consideredModes,
+    		final OpdytsExperimentalConfigGroup opdytsExperimentalConfigGroup) {
         this.scenario = scenario;
         this.opdytsConfigGroup = (OpdytsConfigGroup) scenario.getConfig().getModules().get(OpdytsConfigGroup.GROUP_NAME);
-        this.rnd = new Random(opdytsConfigGroup.getRandomSeedToRandomizeDecisionVariable());
-        log.warn("The random seed to randomizing decision variable is :"+ opdytsConfigGroup.getRandomSeedToRandomizeDecisionVariable());
+        this.opdytsExperimentalConfigGroup = opdytsExperimentalConfigGroup;
+        this.rnd = new Random(opdytsExperimentalConfigGroup.getRandomSeedToRandomizeDecisionVariable());
+        log.warn("The random seed to randomizing decision variable is :"+ opdytsExperimentalConfigGroup.getRandomSeedToRandomizeDecisionVariable());
         this.consideredModes = consideredModes;
     }
 
@@ -70,14 +75,14 @@ public final class ModeChoiceRandomizer implements DecisionVariableRandomizer<Mo
             { // positive
                 PlanCalcScoreConfigGroup configGroupWithStartingModeParams = copyOfPlanCalcScore(oldParameterSet);
                 PlanCalcScoreConfigGroup.ModeParams sourceModeParam = configGroupWithStartingModeParams.getModes().get(mode);
-                double newASC =  sourceModeParam.getConstant() + opdytsConfigGroup.getDecisionVariableStepSize() ;
+                double newASC =  sourceModeParam.getConstant() + opdytsExperimentalConfigGroup.getDecisionVariableStepSize() ;
                 sourceModeParam.setConstant(newASC);
                 allCombinations.add(configGroupWithStartingModeParams);
             }
             { // negative
                 PlanCalcScoreConfigGroup configGroupWithStartingModeParams = copyOfPlanCalcScore(oldParameterSet);
                 PlanCalcScoreConfigGroup.ModeParams sourceModeParam = configGroupWithStartingModeParams.getModes().get(mode);
-                double newASC =  sourceModeParam.getConstant() - opdytsConfigGroup.getDecisionVariableStepSize() ;
+                double newASC =  sourceModeParam.getConstant() - opdytsExperimentalConfigGroup.getDecisionVariableStepSize() ;
                 sourceModeParam.setConstant(newASC);
                 allCombinations.add(configGroupWithStartingModeParams);
             }

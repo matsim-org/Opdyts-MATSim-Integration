@@ -52,7 +52,7 @@ public class RunNetworkParameters {
 		final OpdytsConfigGroup opdytsConfig = new OpdytsConfigGroup();
 		opdytsConfig.setNumberOfIterationsForConvergence(10);
 		opdytsConfig.setNumberOfIterationsForAveraging(5);
-		opdytsConfig.setPopulationSize(4);
+//		opdytsConfig.setPopulationSize(10);
 		opdytsConfig.setBinCount(24);
 		opdytsConfig.setBinSize(3600);
 		opdytsConfig.setStartTime(0);
@@ -117,7 +117,7 @@ public class RunNetworkParameters {
 		 */
 
 		final DecisionVariableRandomizer<NetworkParameters> randomizer = new NetworkParametersRandomizer(
-				opdytsConfig.getPopulationSize());
+				10);
 
 		/*
 		 * The optimization extracts simulation information on a fixed time grid, which
@@ -127,7 +127,7 @@ public class RunNetworkParameters {
 		 */
 
 		// optional (if not set, will be used a default) :Amit July'17
-		final TimeDiscretization timeDiscretization = new TimeDiscretization(opdytsConfig.getStartTime(),
+		final TimeDiscretization timeDiscretization = new TimeDiscretization(opdytsConfig.getStartTime_s(),
 				opdytsConfig.getBinSize(), opdytsConfig.getBinCount());
 		factories.setTimeDiscretization(timeDiscretization);
 

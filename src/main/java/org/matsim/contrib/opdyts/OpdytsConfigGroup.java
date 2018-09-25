@@ -21,8 +21,8 @@ package org.matsim.contrib.opdyts;
 
 import org.matsim.core.config.ReflectiveConfigGroup;
 
+import floetteroed.opdyts.searchalgorithms.RandomSearch;
 import floetteroed.opdyts.searchalgorithms.SelfTuner;
-import floetteroed.utilities.TimeDiscretization;
 
 /**
  * 
@@ -38,63 +38,48 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 		super(GROUP_NAME);
 	}
 
-	// ==================== UNIVERSAL ====================
+	// ==================== TIME DISCRETIZATION ====================
 
-	/*
-	 * Defines the time discretization.
-	 * 
-	 * TODO This also is used in the simulation acceleration config group; could
-	 * consider pulling this out of the opdyts config group. But then, there may be
-	 * cases where one wishes to have different discretizations in different config
-	 * groups!?
-	 * 
-	 * TODO Units!
-	 */
-
-	private static final String START_TIME = "startTime";
 	public static final int DEFAULT_STARTTIME_S = 0;
-	private int startTime = DEFAULT_STARTTIME_S;
 
-	@StringGetter(START_TIME)
-	public int getStartTime() {
-		return this.startTime;
+	private int startTime_s = DEFAULT_STARTTIME_S;
+
+	@StringGetter("startTime_s")
+	public int getStartTime_s() {
+		return this.startTime_s;
 	}
 
-	@StringSetter(START_TIME)
-	public void setStartTime(int startTime) {
-		this.startTime = startTime;
+	@StringSetter("startTime_s")
+	public void setStartTime(int startTime_s) {
+		this.startTime_s = startTime_s;
 	}
 
-	private static final String BIN_SIZE = "binSize";
 	public static final int DEFAULT_BINSIZE_S = 3600;
-	private int binSize = DEFAULT_BINSIZE_S;
 
-	@StringGetter(BIN_SIZE)
+	private int binSize_s = DEFAULT_BINSIZE_S;
+
+	@StringGetter("binSize")
 	public int getBinSize() {
-		return this.binSize;
+		return this.binSize_s;
 	}
 
-	@StringSetter(BIN_SIZE)
+	@StringSetter("binSize")
 	public void setBinSize(int binSize) {
-		this.binSize = binSize;
+		this.binSize_s = binSize;
 	}
 
-	private static final String BIN_COUNT = "binCount";
 	public static final int DEFAULT_BINCNT = 24;
+
 	private int binCount = DEFAULT_BINCNT;
 
-	@StringGetter(BIN_COUNT)
+	@StringGetter("binCount")
 	public int getBinCount() {
 		return this.binCount;
 	}
 
-	@StringSetter(BIN_COUNT)
+	@StringSetter("binCount")
 	public void setBinCount(int binCount) {
 		this.binCount = binCount;
-	}
-
-	public TimeDiscretization newTimeDiscretization() {
-		return new TimeDiscretization(this.getStartTime(), this.getBinSize(), this.getBinCount());
 	}
 
 	// ==================== SELF-TUNING ====================
@@ -123,94 +108,69 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 		this.selfTuningInertia = inertia;
 	}
 
-	private double selfTuningWeight = SelfTuner.DEFAULT_SELFTUNINGSCALE;
+	private double selfTuningWeightScale = SelfTuner.DEFAULT_SELFTUNINGSCALE;
 
-	@StringGetter("selfTuningScale")
-	public double getSelfTuningWeight() {
-		return this.selfTuningWeight;
+	@StringGetter("selfTuningWeightScale")
+	public double getSelfTuningWeightScale() {
+		return this.selfTuningWeightScale;
 	}
 
-	@StringSetter("selfTuningScale")
-	public void setSelfTuningWeight(double selfTuningWeight) {
-		this.selfTuningWeight = selfTuningWeight;
+	@StringSetter("selfTuningWeightScale")
+	public void setSelfTuningWeightScale(double selfTuningWeightScale) {
+		this.selfTuningWeightScale = selfTuningWeightScale;
 	}
 
 	private double initialEquilibriumGapWeight = SelfTuner.DEFAULT_INITIALEQUILIBRIUMGAPWEIGHT;
 
 	@StringGetter("initialEquilibriumGapWeight")
-	public double getEquilibriumGapWeight() {
+	public double getInitialEquilibriumGapWeight() {
 		return initialEquilibriumGapWeight;
 	}
 
 	@StringSetter("initialEquilibriumGapWeight")
-	public void setEquilibriumGapWeight(double equilibriumGapWeight) {
-		this.initialEquilibriumGapWeight = equilibriumGapWeight;
+	public void setInitialEquilibriumGapWeight(double initialEquilibriumGapWeight) {
+		this.initialEquilibriumGapWeight = initialEquilibriumGapWeight;
 	}
 
 	private double initialUniformityGapWeight = SelfTuner.DEFAULT_INITIALUNIFORMITYGAPWEIGHT;
 
 	@StringGetter("initialUniformityGapWeight")
-	public double getUniformityGapWeight() {
+	public double getInitialUniformityGapWeight() {
 		return initialUniformityGapWeight;
 	}
 
 	@StringSetter("initialUniformityGapWeight")
-	public void setUniformityGapWeight(double uniformityGapWeight) {
-		this.initialUniformityGapWeight = uniformityGapWeight;
+	public void setInitialUniformityGapWeight(double initialUniformityGapWeight) {
+		this.initialUniformityGapWeight = initialUniformityGapWeight;
 	}
 
-	public SelfTuner newSelfTuner() {
-		final SelfTuner result = new SelfTuner(this.getEquilibriumGapWeight(), this.getUniformityGapWeight());
-		result.setInertia(this.getInertia());
-		result.setNoisySystem(this.noisySystem);
-		result.setWeightScale(this.getSelfTuningWeight());
-		return result;
-	}
+	// ==================== TRAJECTORY MEMORY CONSTRAINTS ====================
 
-	// ==================== ====================
+	private int maxMemoryPerTrajectory = RandomSearch.DEFAULT_MAXMEMORYPERTRAJECTORY;
 
-	/*
-	 * The maximal memorized number of transitions in a simulation trajectory.
-	 */
-
-	private static final String MAX_MEMORY_PER_TRAJECTORY = "maxMemoryPerTrajectory";
-	private int maxMemoryPerTrajectory = Integer.MAX_VALUE;
-
-	@StringGetter(MAX_MEMORY_PER_TRAJECTORY)
+	@StringGetter("maxMemoryPerTrajectory")
 	public int getMaxMemoryPerTrajectory() {
 		return maxMemoryPerTrajectory;
 	}
 
-	@StringSetter(MAX_MEMORY_PER_TRAJECTORY)
+	@StringSetter("maxMemoryPerTrajectory")
 	public void setMaxMemoryPerTrajectory(int maxMemoryPerTrajectory) {
 		this.maxMemoryPerTrajectory = maxMemoryPerTrajectory;
 	}
 
-	/*
-	 * The maximal total number of memorized simulation trajectory transitions.
-	 */
+	private int maxTotalMemory = RandomSearch.DEFAULT_MAXTOTALMEMORY;
 
-	private static final String MAX_TOTAL_MEMORY = "maxTotalMemory";
-	private int maxTotalMemory = Integer.MAX_VALUE;
-
-	@StringGetter(MAX_TOTAL_MEMORY)
+	@StringGetter("maxTotalMemory")
 	public int getMaxTotalMemory() {
 		return maxTotalMemory;
 	}
 
-	@StringSetter(MAX_TOTAL_MEMORY)
+	@StringSetter("maxTotalMemory")
 	public void setMaxTotalMemory(int maxTotalMemory) {
 		this.maxTotalMemory = maxTotalMemory;
 	}
 
-	/*
-	 * Through how many *stages* the optimization is supposed to iterate.
-	 * 
-	 * TODO Rename into "maxOptimizationStages".
-	 * 
-	 * TODO Make sure that the effective termination criterion is the stronger one
-	 * out of "stage counting" and "transition counting".
-	 */
+	// ==================== STAGE/ITERATION LIMIT ====================
 
 	private static final String MAX_ITERATION = "maxIteration";
 	private int maxIteration = 10;
@@ -225,17 +185,8 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 		this.maxIteration = maxIteration;
 	}
 
-	/*
-	 * After how many simulation transitions, counted over all stages, the
-	 * optimization is supposed to terminate.
-	 * 
-	 * TODO Rename into "maxSimulationTransitions".
-	 * 
-	 * TODO Make sure that the effective termination criterion is the stronger one
-	 * out of "stage counting" and "transition counting".
-	 */
-
 	private static final String MAX_TRANSITION = "maxTransition";
+
 	private int maxTransition = Integer.MAX_VALUE;
 
 	@StringGetter(MAX_TRANSITION)
@@ -248,103 +199,118 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 		this.maxTransition = maxTransition;
 	}
 
-	/*
-	 * Defines the warm-up iterations, an idea of Amit.
-	 */
+	// ==================== WARM-UP ITERATIONS ====================
 
-	private static final String WARM_UP_ITERATIONS = "warmUpIterations";
-	private int warmUpIterations = 1;
+	private int warmUpIterations = RandomSearch.DEFAULT_WARMUPITERATIONS;
 
-	private static final String USE_ALL_WARM_UP_ITERATIONS = "useAllWarmUpIterations";
-	private boolean useAllWarmUpIterations = false;
-
-	@StringGetter(WARM_UP_ITERATIONS)
+	@StringGetter("warmUpIterations")
 	public int getWarmUpIterations() {
 		return warmUpIterations;
 	}
 
-	@StringSetter(WARM_UP_ITERATIONS)
+	@StringSetter("warmUpIterations")
 	public void setWarmUpIterations(int warmUpIterations) {
 		this.warmUpIterations = warmUpIterations;
 	}
 
-	@StringGetter(USE_ALL_WARM_UP_ITERATIONS)
+	private boolean useAllWarmUpIterations = RandomSearch.DEFAULT_USEALLWARMUPITERATIONS;
+
+	@StringGetter("useAllWarmUpIterations")
 	public boolean getUseAllWarmUpIterations() {
 		return useAllWarmUpIterations;
 	}
 
-	@StringSetter(USE_ALL_WARM_UP_ITERATIONS)
+	@StringSetter("useAllWarmUpIterations")
 	public void setUseAllWarmUpIterations(boolean useAllWarmUpIterations) {
 		this.useAllWarmUpIterations = useAllWarmUpIterations;
 	}
 
-	/*
-	 * How many candidate decision variables one wishes to create per optimization
-	 * stage.
-	 * 
-	 * TODO: Rename into something like numberOfCandidateDecisionVariables.
-	 */
+	// =============== FIXED-ITERATION-NUMBER CONVERGENCE CRITERION ===============
 
-	private static final String POPULATION_SIZE = "populationSize";
-	private int populationSize = 10;
+	private Integer numberOfIterationsForAveraging = null; // was 20
 
-	@StringGetter(POPULATION_SIZE)
-	public int getPopulationSize() {
-		return this.populationSize;
-	}
-
-	@StringSetter(POPULATION_SIZE)
-	public void setPopulationSize(int populationSize) {
-		this.populationSize = populationSize;
-	}
-
-	/*
-	 * Parametrizes the self-tuning logic.
-	 * 
-	 * Assuming that the current self-tuning will persist as a status quo, this
-	 * makes sense as part of the "universal" configuration.
-	 * 
-	 */
-
-	// TODO Rename into selfTuningInertia
-
-	// TODO rename into initialEquilbriumGapWeight
-
-	/*
-	 * Parametrizes the default convergence criterion.
-	 * 
-	 * TODO This assumes an exogenous, iteration-count based convergence criterion,
-	 * which could (and should) be replaced by a more adaptive convergence test.
-	 * Meaning that these parameters only apply to one concrete implementation of
-	 * ConvergenceCriterion.
-	 * 
-	 */
-
-	private static final String NUMBER_OF_ITERATION_TO_AVERAGE = "numberOfIterationsForAveraging";
-	private int numberOfIterationsForAveraging = 20;
-
-	@StringGetter(NUMBER_OF_ITERATION_TO_AVERAGE)
-	public int getNumberOfIterationsForAveraging() {
+	@StringGetter("numberOfIterationsForAveraging")
+	public Integer getNumberOfIterationsForAveraging() {
 		return numberOfIterationsForAveraging;
 	}
 
-	@StringSetter(NUMBER_OF_ITERATION_TO_AVERAGE)
+	@StringSetter("numberOfIterationsForAveraging")
 	public void setNumberOfIterationsForAveraging(int numberOfIterationsForAveraging) {
 		this.numberOfIterationsForAveraging = numberOfIterationsForAveraging;
 	}
 
-	private static final String NUMBER_OF_ITERATION_FOR_CONVERGENCE = "numberOfIterationsForConvergence";
-	private int numberOfIterationsForConvergence = 600;
+	private Integer numberOfIterationsForConvergence = null; // was 600
 
-	@StringGetter(NUMBER_OF_ITERATION_FOR_CONVERGENCE)
-	public int getNumberOfIterationsForConvergence() {
+	@StringGetter("numberOfIterationsForConvergence")
+	public Integer getNumberOfIterationsForConvergence() {
 		return numberOfIterationsForConvergence;
 	}
 
-	@StringSetter(NUMBER_OF_ITERATION_FOR_CONVERGENCE)
+	@StringSetter("numberOfIterationsForConvergence")
 	public void setNumberOfIterationsForConvergence(int numberOfIterationsForConvergence) {
 		this.numberOfIterationsForConvergence = numberOfIterationsForConvergence;
 	}
+
+	// /*
+	// * How many candidate decision variables one wishes to create per optimization
+	// * stage.
+	// *
+	// * TODO: Rename into something like numberOfCandidateDecisionVariables.
+	// */
+	//
+	// private static final String POPULATION_SIZE = "populationSize";
+	// private int populationSize = 10;
+	//
+	// @StringGetter(POPULATION_SIZE)
+	// public int getPopulationSize() {
+	// return this.populationSize;
+	// }
+	//
+	// @StringSetter(POPULATION_SIZE)
+	// public void setPopulationSize(int populationSize) {
+	// this.populationSize = populationSize;
+	// }
+
+	// /*
+	// * Parametrizes the default convergence criterion.
+	// *
+	// * TODO This assumes an exogenous, iteration-count based convergence
+	// criterion,
+	// * which could (and should) be replaced by a more adaptive convergence test.
+	// * Meaning that these parameters only apply to one concrete implementation of
+	// * ConvergenceCriterion.
+	// *
+	// */
+	//
+	// private static final String NUMBER_OF_ITERATION_TO_AVERAGE =
+	// "numberOfIterationsForAveraging";
+	// private int numberOfIterationsForAveraging = 20;
+	//
+	// @StringGetter(NUMBER_OF_ITERATION_TO_AVERAGE)
+	// public int getNumberOfIterationsForAveraging() {
+	// return numberOfIterationsForAveraging;
+	// }
+	//
+	// @StringSetter(NUMBER_OF_ITERATION_TO_AVERAGE)
+	// public void setNumberOfIterationsForAveraging(int
+	// numberOfIterationsForAveraging) {
+	// this.numberOfIterationsForAveraging = numberOfIterationsForAveraging;
+	// }
+	//
+	// private static final String NUMBER_OF_ITERATION_FOR_CONVERGENCE =
+	// "numberOfIterationsForConvergence";
+	// private int numberOfIterationsForConvergence = 600;
+	//
+	// @StringGetter(NUMBER_OF_ITERATION_FOR_CONVERGENCE)
+	// public int getNumberOfIterationsForConvergence() {
+	// return numberOfIterationsForConvergence;
+	// }
+	//
+	// @StringSetter(NUMBER_OF_ITERATION_FOR_CONVERGENCE)
+	// public void setNumberOfIterationsForConvergence(int
+	// numberOfIterationsForConvergence) {
+	// this.numberOfIterationsForConvergence = numberOfIterationsForConvergence;
+	// }
 
 	// ==================== EXPERIMENTAL ====================
 
@@ -357,18 +323,21 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	 * 
 	 */
 
-	private static final String RANDOM_SEED_TO_RANDOMIZE_DECISION_VARIABLE = "randomSeedToRandomizeDecisionVariable";
-	private int randomSeedToRandomizeDecisionVariable = 4711;
-
-	@StringGetter(RANDOM_SEED_TO_RANDOMIZE_DECISION_VARIABLE)
-	public int getRandomSeedToRandomizeDecisionVariable() {
-		return this.randomSeedToRandomizeDecisionVariable;
-	}
-
-	@StringSetter(RANDOM_SEED_TO_RANDOMIZE_DECISION_VARIABLE)
-	public void setRandomSeedToRandomizeDecisionVariable(int randomSeedToRandomizeDecisionVariable) {
-		this.randomSeedToRandomizeDecisionVariable = randomSeedToRandomizeDecisionVariable;
-	}
+	// private static final String RANDOM_SEED_TO_RANDOMIZE_DECISION_VARIABLE =
+	// "randomSeedToRandomizeDecisionVariable";
+	// private int randomSeedToRandomizeDecisionVariable = 4711;
+	//
+	// @StringGetter(RANDOM_SEED_TO_RANDOMIZE_DECISION_VARIABLE)
+	// public int getRandomSeedToRandomizeDecisionVariable() {
+	// return this.randomSeedToRandomizeDecisionVariable;
+	// }
+	//
+	// @StringSetter(RANDOM_SEED_TO_RANDOMIZE_DECISION_VARIABLE)
+	// public void setRandomSeedToRandomizeDecisionVariable(int
+	// randomSeedToRandomizeDecisionVariable) {
+	// this.randomSeedToRandomizeDecisionVariable =
+	// randomSeedToRandomizeDecisionVariable;
+	// }
 
 	/*
 	 * A step size scaling for random decision variables.
@@ -377,97 +346,17 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	 * problem-specific, and not of MATSim/Optyts in general.
 	 */
 
-	private static final String DECISION_VARIABLE_STEP_SIZE = "decisionVariableStepSize";
-	private double decisionVariableStepSize = 0.1;
-
-	@StringGetter(DECISION_VARIABLE_STEP_SIZE)
-	public double getDecisionVariableStepSize() {
-		return decisionVariableStepSize;
-	}
-
-	@StringSetter(DECISION_VARIABLE_STEP_SIZE)
-	public void setDecisionVariableStepSize(double decisionVariableStepSize) {
-		this.decisionVariableStepSize = decisionVariableStepSize;
-	}
-
-	// ==================== DEPRECATED ====================
-
-	/*
-	 * "interpolate" is a misleading term for "use opdyts". Should always be true.
-	 */
-
-//	private static final String IS_INTERPOLATE = "interpolate";
-//	private boolean interpolate = true;
-//
-//	@StringGetter(IS_INTERPOLATE)
-//	public boolean isInterpolate() {
-//		return interpolate;
-//	}
-//
-//	@StringSetter(IS_INTERPOLATE)
-//	public void setInterpolate(boolean interpolate) {
-//		this.interpolate = interpolate;
-//	}
-
-	/*
-	 * Use the standard MATSim output path.
-	 */
-
-//	private static final String OUTPUT_DIRECTORY = "outputDirectory";
-//	private String outputDirectory = null; // "./output/";
-//
-//	@StringGetter(OUTPUT_DIRECTORY)
-//	public String getOutputDirectory() {
-//		return this.outputDirectory;
-//	}
-//
-//	@StringSetter(OUTPUT_DIRECTORY)
-//	public void setOutputDirectory(String outputDirectory) {
-//		this.outputDirectory = outputDirectory;
-//	}
-
-	/*
-	 * Preferably couple this to some MATSim standard parameter instead.
-	 * 
-	 * Also, this seems to be used only for a single analysis class, perhaps it is
-	 * possible to decouple this a bit more from the innermost opdyts functionality?
-	 */
-
-//	private static final String FILE_WRITING_INTERVAL = "fileWritingInterval";
-//	private int fileWritingInterval = 10;
-//
-//	@StringGetter(FILE_WRITING_INTERVAL)
-//	public int getFileWritingInterval() {
-//		return fileWritingInterval;
-//	}
-//
-//	@StringSetter(FILE_WRITING_INTERVAL)
-//	public void setFileWritingInterval(int fileWritingInterval) {
-//		this.fileWritingInterval = fileWritingInterval;
-//	}
-
-	/*
-	 * If the best decision variable found in the previous stage is to be included
-	 * again as a candidate decision variable in the upcoming stage.
-	 * 
-	 * It appears difficult to find a good reason for doing this; given that the
-	 * candidate decision variables are created by symmetric +/- variations of the
-	 * currently best decision variable and that the entire approach is based on
-	 * linear interpolations, evaluating an "inner point" does not make much sense.
-	 * 
-	 */
-
-//	private static final String INCLUDE_CURRENT_BEST = "includeCurrentBest";
-//	private boolean includeCurrentBest = false;
-//
-//	@StringGetter(INCLUDE_CURRENT_BEST)
-//	public boolean isIncludeCurrentBest() {
-//		return includeCurrentBest;
-//	}
-//
-//	@StringSetter(INCLUDE_CURRENT_BEST)
-//	public void setIncludeCurrentBest(boolean includeCurrentBest) {
-//		this.includeCurrentBest = includeCurrentBest;
-//	}
-
+	// private static final String DECISION_VARIABLE_STEP_SIZE =
+	// "decisionVariableStepSize";
+	// private double decisionVariableStepSize = 0.1;
+	//
+	// @StringGetter(DECISION_VARIABLE_STEP_SIZE)
+	// public double getDecisionVariableStepSize() {
+	// return decisionVariableStepSize;
+	// }
+	//
+	// @StringSetter(DECISION_VARIABLE_STEP_SIZE)
+	// public void setDecisionVariableStepSize(double decisionVariableStepSize) {
+	// this.decisionVariableStepSize = decisionVariableStepSize;
+	// }
 }

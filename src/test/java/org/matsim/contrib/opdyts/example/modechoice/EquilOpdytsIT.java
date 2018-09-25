@@ -104,11 +104,15 @@ public class EquilOpdytsIT {
 
         opdytsConfigGroup.setMaxIteration(opdytsTransitions);
         // opdytsConfigGroup.setOutputDirectory(outputDirectory);
-        opdytsConfigGroup.setDecisionVariableStepSize(stepSize);
+//        opdytsConfigGroup.setDecisionVariableStepSize(stepSize);
         opdytsConfigGroup.setUseAllWarmUpIterations(false);
         opdytsConfigGroup.setWarmUpIterations(5); //this should be tested (parametrized).
-        opdytsConfigGroup.setPopulationSize(2);
-
+//        opdytsConfigGroup.setPopulationSize(2);
+        
+        OpdytsExperimentalConfigGroup opdytsExperimentalConfigGroup = new OpdytsExperimentalConfigGroup();
+        opdytsExperimentalConfigGroup.setDecisionVariableStepSize(stepSize);        
+        opdytsExperimentalConfigGroup.setPopulationSize(2);
+        
         MATSimOpdytsRunner<ModeChoiceDecisionVariable> runner = new MATSimOpdytsRunner<>(scenario);
 
         MATSimSimulationWrapper<ModeChoiceDecisionVariable> simulator = new MATSimSimulationWrapper<ModeChoiceDecisionVariable>(new MATSimStateFactoryImpl<>(), scenario);
@@ -133,7 +137,7 @@ public class EquilOpdytsIT {
         }, modes2consider);
 
         runner.run(simulator,
-                new ModeChoiceRandomizer(scenario, modes2consider),
+                new ModeChoiceRandomizer(scenario, modes2consider, opdytsExperimentalConfigGroup),
                 initialDecisionVariable,
                 modeChoiceObjectiveFunction,
                 outputDirectory);
