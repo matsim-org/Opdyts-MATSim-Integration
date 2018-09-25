@@ -103,7 +103,7 @@ public class EquilOpdytsIT {
         opdytsConfigGroup.setNumberOfIterationsForConvergence(15);
 
         opdytsConfigGroup.setMaxIteration(opdytsTransitions);
-        opdytsConfigGroup.setOutputDirectory(outputDirectory);
+        // opdytsConfigGroup.setOutputDirectory(outputDirectory);
         opdytsConfigGroup.setDecisionVariableStepSize(stepSize);
         opdytsConfigGroup.setUseAllWarmUpIterations(false);
         opdytsConfigGroup.setWarmUpIterations(5); //this should be tested (parametrized).
@@ -135,7 +135,8 @@ public class EquilOpdytsIT {
         runner.run(simulator,
                 new ModeChoiceRandomizer(scenario, modes2consider),
                 initialDecisionVariable,
-                modeChoiceObjectiveFunction);
+                modeChoiceObjectiveFunction,
+                outputDirectory);
 
         //checks
         //check the max opdyts transition

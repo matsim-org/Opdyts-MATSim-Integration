@@ -181,7 +181,7 @@ public class RunNetworkParameters {
 		 */
 
 		// randomSearch.run();
-		factories.run(matsim, randomizer, initialDecisionVariable, objectiveFunction);
+		factories.run(matsim, randomizer, initialDecisionVariable, objectiveFunction, "./output");
 
 		System.out.println("... DONE.");
 	}

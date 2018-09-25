@@ -173,8 +173,9 @@ public class MATSimDecisionVariableSetEvaluator2<U extends DecisionVariable>
 			this.justStarted = false;
 		} else {
 
-			int fileWritingIteration = ConfigUtils
-					.addOrGetModule(event.getServices().getConfig(), OpdytsConfigGroup.class).getFileWritingInterval();
+			int fileWritingIteration = 10;
+//					ConfigUtils
+//					.addOrGetModule(event.getServices().getConfig(), OpdytsConfigGroup.class).getFileWritingInterval();
 
 			/*
 			 * (1) Extract the instantaneous state vector.

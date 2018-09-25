@@ -396,35 +396,35 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	 * "interpolate" is a misleading term for "use opdyts". Should always be true.
 	 */
 
-	private static final String IS_INTERPOLATE = "interpolate";
-	private boolean interpolate = true;
-
-	@StringGetter(IS_INTERPOLATE)
-	public boolean isInterpolate() {
-		return interpolate;
-	}
-
-	@StringSetter(IS_INTERPOLATE)
-	public void setInterpolate(boolean interpolate) {
-		this.interpolate = interpolate;
-	}
+//	private static final String IS_INTERPOLATE = "interpolate";
+//	private boolean interpolate = true;
+//
+//	@StringGetter(IS_INTERPOLATE)
+//	public boolean isInterpolate() {
+//		return interpolate;
+//	}
+//
+//	@StringSetter(IS_INTERPOLATE)
+//	public void setInterpolate(boolean interpolate) {
+//		this.interpolate = interpolate;
+//	}
 
 	/*
 	 * Use the standard MATSim output path.
 	 */
 
-	private static final String OUTPUT_DIRECTORY = "outputDirectory";
-	private String outputDirectory = "./output/";
-
-	@StringGetter(OUTPUT_DIRECTORY)
-	public String getOutputDirectory() {
-		return this.outputDirectory;
-	}
-
-	@StringSetter(OUTPUT_DIRECTORY)
-	public void setOutputDirectory(String outputDirectory) {
-		this.outputDirectory = outputDirectory;
-	}
+//	private static final String OUTPUT_DIRECTORY = "outputDirectory";
+//	private String outputDirectory = null; // "./output/";
+//
+//	@StringGetter(OUTPUT_DIRECTORY)
+//	public String getOutputDirectory() {
+//		return this.outputDirectory;
+//	}
+//
+//	@StringSetter(OUTPUT_DIRECTORY)
+//	public void setOutputDirectory(String outputDirectory) {
+//		this.outputDirectory = outputDirectory;
+//	}
 
 	/*
 	 * Preferably couple this to some MATSim standard parameter instead.
@@ -433,18 +433,18 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	 * possible to decouple this a bit more from the innermost opdyts functionality?
 	 */
 
-	private static final String FILE_WRITING_INTERVAL = "fileWritingInterval";
-	private int fileWritingInterval = 10;
-
-	@StringGetter(FILE_WRITING_INTERVAL)
-	public int getFileWritingInterval() {
-		return fileWritingInterval;
-	}
-
-	@StringSetter(FILE_WRITING_INTERVAL)
-	public void setFileWritingInterval(int fileWritingInterval) {
-		this.fileWritingInterval = fileWritingInterval;
-	}
+//	private static final String FILE_WRITING_INTERVAL = "fileWritingInterval";
+//	private int fileWritingInterval = 10;
+//
+//	@StringGetter(FILE_WRITING_INTERVAL)
+//	public int getFileWritingInterval() {
+//		return fileWritingInterval;
+//	}
+//
+//	@StringSetter(FILE_WRITING_INTERVAL)
+//	public void setFileWritingInterval(int fileWritingInterval) {
+//		this.fileWritingInterval = fileWritingInterval;
+//	}
 
 	/*
 	 * If the best decision variable found in the previous stage is to be included
@@ -457,17 +457,17 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	 * 
 	 */
 
-	private static final String INCLUDE_CURRENT_BEST = "includeCurrentBest";
-	private boolean includeCurrentBest = false;
-
-	@StringGetter(INCLUDE_CURRENT_BEST)
-	public boolean isIncludeCurrentBest() {
-		return includeCurrentBest;
-	}
-
-	@StringSetter(INCLUDE_CURRENT_BEST)
-	public void setIncludeCurrentBest(boolean includeCurrentBest) {
-		this.includeCurrentBest = includeCurrentBest;
-	}
+//	private static final String INCLUDE_CURRENT_BEST = "includeCurrentBest";
+//	private boolean includeCurrentBest = false;
+//
+//	@StringGetter(INCLUDE_CURRENT_BEST)
+//	public boolean isIncludeCurrentBest() {
+//		return includeCurrentBest;
+//	}
+//
+//	@StringSetter(INCLUDE_CURRENT_BEST)
+//	public void setIncludeCurrentBest(boolean includeCurrentBest) {
+//		this.includeCurrentBest = includeCurrentBest;
+//	}
 
 }
