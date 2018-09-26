@@ -5,11 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.contrib.opdyts.macrostate.SimulationMacroStateAnalyzer;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactory;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.TerminationCriterion;
-import org.matsim.core.scoring.ScoringFunctionFactory;
 
 import floetteroed.opdyts.DecisionVariable;
 import floetteroed.opdyts.SimulatorState;
@@ -17,9 +17,8 @@ import floetteroed.opdyts.searchalgorithms.Simulator;
 import floetteroed.opdyts.trajectorysampling.TrajectorySampler;
 
 /**
- * Created by michaelzilske on 08/10/15.
- * 
- * Modified by Gunnar, starting in December 2015.
+ * @author michaelzilske created this on 08/10/15.
+ * @author Gunnar modified this since 2015.
  */
 public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simulator<U> {
 
@@ -29,40 +28,35 @@ public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simu
 
 	private final Scenario scenario;
 
-	private AbstractModule[] replacingModules = null;
-	private AbstractModule overrides = AbstractModule.emptyModule();
-
-	// private int nextControlerRun = 0;
-	private final OpdytsIterationWrapper opdytsIterationWrapper = new OpdytsIterationWrapper();
-
-	private ScoringFunctionFactory scoringFunctionFactory = null;
-
-	private int stateMemory = 1;
-
-	// TODO not elegant
-	// a list because the order matters in the state space vector
+	// A list because the order matters in the state space vector.
 	private final List<SimulationMacroStateAnalyzer> simulationStateAnalyzers = new ArrayList<>();
 
-	// TODO exists also in MATSimDecisionVariableSetEvaluator2
+	private AbstractModule[] replacingModules = null;
+
+	private AbstractModule overrides = AbstractModule.emptyModule();
+
+	// -------------------- CONSTRUCTION --------------------
+
+	public MATSimSimulationWrapper(final Scenario scenario, final MATSimStateFactory<U> stateFactory) {
+		this.stateFactory = stateFactory;
+		this.scenario = scenario;
+
+		// Because the simulation is run multiple times.
+		final String outputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
+		this.scenario.getConfig().controler().setOutputDirectory(outputDirectory + "_0");
+
+		// Because Opdyts assumes no systematic changes in the simulation dynamics.
+		this.scenario.getConfig().strategy().setFractionOfIterationsToDisableInnovation(Double.POSITIVE_INFINITY);
+		this.scenario.getConfig().planCalcScore().setFractionOfIterationsToStartScoreMSA(Double.POSITIVE_INFINITY);
+	}
+
+	// -------------------- CONFIGURATION --------------------
+
 	public void addSimulationStateAnalyzer(final SimulationMacroStateAnalyzer analyzer) {
 		if (this.simulationStateAnalyzers.contains(analyzer)) {
 			throw new RuntimeException("Analyzer " + analyzer + " has already been added.");
 		}
 		this.simulationStateAnalyzers.add(analyzer);
-	}
-
-	// -------------------- CONSTRUCTOR --------------------
-
-	public MATSimSimulationWrapper(final MATSimStateFactory<U> stateFactory, final Scenario scenario) {
-		this.stateFactory = stateFactory;
-		this.scenario = scenario;
-
-		final String outputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
-		this.scenario.getConfig().controler().setOutputDirectory(outputDirectory + "_0");
-
-		// because this systematically changes the simulation dynamics
-		this.scenario.getConfig().strategy().setFractionOfIterationsToDisableInnovation(Double.POSITIVE_INFINITY);
-		this.scenario.getConfig().planCalcScore().setFractionOfIterationsToStartScoreMSA(Double.POSITIVE_INFINITY);
 	}
 
 	public final void setReplacingModules(final AbstractModule... replacingModules) {
@@ -73,16 +67,19 @@ public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simu
 		this.overrides = AbstractModule.override(Arrays.asList(this.overrides), abstractModule);
 	}
 
-	// TODO NEW
-	// In principle this can also be done via a module. So this additional
-	// syntax is not really necessary (and bloats the design). kai, sep'16
-	public void setScoringFunctionFactory(final ScoringFunctionFactory factory) {
-		this.scoringFunctionFactory = factory;
+	// ---------- TODO FOR COMPATIBLITY WITH AMIT'S CODE. REVISIT. ----------
+
+	private WireOpdytsIntoMATSimControlerListener.BeforeMobsimAnalyzer beforeMobsimAnalyzer = null;
+
+	public void setBeforeMobsimAnalyzer(
+			WireOpdytsIntoMATSimControlerListener.BeforeMobsimAnalyzer beforeMobsimAnalyzer) {
+		this.beforeMobsimAnalyzer = beforeMobsimAnalyzer;
 	}
 
-	// TODO NEW
-	public void setStateMemory(final int stateMemory) {
-		this.stateMemory = stateMemory;
+	private int numberOfCompletedSimulationRuns = 0;
+
+	public int getNumberOfCompletedSimulationRuns() {
+		return this.numberOfCompletedSimulationRuns;
 	}
 
 	// --------------- IMPLEMENTATION OF Simulator INTERFACE ---------------
@@ -95,43 +92,27 @@ public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simu
 		 * complete MATSim run. To avoid that the MATSim output files are overwritten
 		 * each time, set iteration-specific output directory names.
 		 */
+
 		String outputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
-		// outputDirectory = outputDirectory.substring(0,
-		// outputDirectory.lastIndexOf("_")) + "_" + this.nextControlerRun;
 		outputDirectory = outputDirectory.substring(0, outputDirectory.lastIndexOf("_")) + "_"
-				+ this.opdytsIterationWrapper.getIteration();
+				+ this.numberOfCompletedSimulationRuns;
 		this.scenario.getConfig().controler().setOutputDirectory(outputDirectory);
 
 		/*
 		 * (2) Create the MATSimDecisionVariableSetEvaluator that is supposed to
 		 * "optimize along" the MATSim run of this iteration.
 		 */
-		final MATSimDecisionVariableSetEvaluator2<U> matsimDecisionVariableEvaluator = new MATSimDecisionVariableSetEvaluator2<>(
-				trajectorySampler, this.stateFactory);
 
-		for (SimulationMacroStateAnalyzer analyzer : this.simulationStateAnalyzers) {
-			matsimDecisionVariableEvaluator.addSimulationStateAnalyzer(analyzer);
-		}
-
-		matsimDecisionVariableEvaluator.setMemory(this.stateMemory);
+		final WireOpdytsIntoMATSimControlerListener<U> matsimDecisionVariableEvaluator = new WireOpdytsIntoMATSimControlerListener<>(
+				trajectorySampler, this.stateFactory, this.simulationStateAnalyzers, this.beforeMobsimAnalyzer);
 
 		/*
 		 * (3) Create, configure, and run a new MATSim Controler.
-		 * 
-		 * TODO Is this done correctly?
 		 */
+
 		final Controler controler = new Controler(this.scenario);
 		if ((this.replacingModules != null) && (this.replacingModules.length > 0)) {
 			controler.setModules(this.replacingModules);
-
-			// I would say that with this syntax it is quite prone to
-			// misunderstandings: If this.modules is != null, this syntax will
-			// _replace_ the complete controler infrastructure. This is a
-			// possibility, but in matsim it seems more normal to
-			// add "overriding" modules, i.e. to replace default functionality
-			// by other functionality and/or add functionality. kai, sep'16
-			// Fixed by differentiating between setReplacingModules and
-			// addOverridingModules. kai, sep'16
 		}
 		controler.addOverridingModule(this.overrides);
 
@@ -161,15 +142,9 @@ public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simu
 			}
 		});
 
-		if (this.scoringFunctionFactory != null) {
-			controler.setScoringFunctionFactory(this.scoringFunctionFactory);
-		}
-
-		// this.stateFactory.registerControler(controler);
-
 		controler.run();
-		// this.nextControlerRun++;
-		this.opdytsIterationWrapper.nextIteration();
+		this.numberOfCompletedSimulationRuns++;
+
 		return matsimDecisionVariableEvaluator.getFinalState();
 	}
 
@@ -179,9 +154,5 @@ public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simu
 			initialState.implementInSimulation();
 		}
 		return this.run(evaluator);
-	}
-
-	public OpdytsIterationWrapper getOpdytsIterationWrapper() {
-		return opdytsIterationWrapper;
 	}
 }

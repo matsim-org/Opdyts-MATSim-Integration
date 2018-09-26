@@ -52,7 +52,7 @@ public class RunNetworkParameters {
 		final OpdytsConfigGroup opdytsConfig = new OpdytsConfigGroup();
 		opdytsConfig.setNumberOfIterationsForConvergence(10);
 		opdytsConfig.setNumberOfIterationsForAveraging(5);
-//		opdytsConfig.setPopulationSize(10);
+		// opdytsConfig.setPopulationSize(10);
 		opdytsConfig.setBinCount(24);
 		opdytsConfig.setBinSize(3600);
 		opdytsConfig.setStartTime(0);
@@ -63,7 +63,16 @@ public class RunNetworkParameters {
 
 		// <<<<<<<<<< SHOULD COME FROM FILE <<<<<<<<<<
 
-		MATSimOpdytsRunner<NetworkParameters> factories = new MATSimOpdytsRunner<>(scenario);
+		/*
+		 * Creation of MATSim state objects. A basic MATSim state class (MATSimState) is
+		 * available, but one often needs to memorize additional information that is not
+		 * strictly part of the state but still helpful when, for example, evaluating
+		 * the objective function.
+		 */
+
+		final NetworkParametersStateFactory stateFactory = new NetworkParametersStateFactory();
+
+		MATSimOpdytsRunner<NetworkParameters> factories = new MATSimOpdytsRunner<>(scenario, stateFactory);
 
 		/*
 		 * Define convergence criterion.
@@ -88,16 +97,7 @@ public class RunNetworkParameters {
 		// optional (if not set, will be used a default) :Amit July'17
 		final ConvergenceCriterion convergenceCriterion = new FixedIterationNumberConvergenceCriterion(
 				opdytsConfig.getNumberOfIterationsForConvergence(), opdytsConfig.getNumberOfIterationsForAveraging());
-		factories.setFixedIterationNumberConvergenceCriterion(convergenceCriterion);
-
-		/*
-		 * Creation of MATSim state objects. A basic MATSim state class (MATSimState) is
-		 * available, but one often needs to memorize additional information that is not
-		 * strictly part of the state but still helpful when, for example, evaluating
-		 * the objective function.
-		 */
-
-		final NetworkParametersStateFactory stateFactory = new NetworkParametersStateFactory();
+		factories.setConvergenceCriterion(convergenceCriterion);
 
 		/*
 		 * The objective function: a quantitative measure of what one wants to achieve.
@@ -116,8 +116,7 @@ public class RunNetworkParameters {
 		 * decision variables should be as large as memory allows.
 		 */
 
-		final DecisionVariableRandomizer<NetworkParameters> randomizer = new NetworkParametersRandomizer(
-				10);
+		final DecisionVariableRandomizer<NetworkParameters> randomizer = new NetworkParametersRandomizer(10);
 
 		/*
 		 * The optimization extracts simulation information on a fixed time grid, which
@@ -128,15 +127,15 @@ public class RunNetworkParameters {
 
 		// optional (if not set, will be used a default) :Amit July'17
 		final TimeDiscretization timeDiscretization = new TimeDiscretization(opdytsConfig.getStartTime_s(),
-				opdytsConfig.getBinSize(), opdytsConfig.getBinCount());
-		factories.setTimeDiscretization(timeDiscretization);
+				opdytsConfig.getBinSize_s(), opdytsConfig.getBinCount());
+		// factories.setTimeDiscretization(timeDiscretization);
 
 		/*
 		 * Packages MATSim for use with Opdyts.
 		 */
 
-		final MATSimSimulationWrapper<NetworkParameters> matsim = new MATSimSimulationWrapper<NetworkParameters>(stateFactory,
-				scenario);
+		final MATSimSimulationWrapper<NetworkParameters> matsim = new MATSimSimulationWrapper<NetworkParameters>(
+				scenario, stateFactory);
 		final Set<String> modes = new LinkedHashSet<>();
 		modes.add("car");
 		// TODO NEW 2018-09-24
@@ -181,7 +180,7 @@ public class RunNetworkParameters {
 		 */
 
 		// randomSearch.run();
-		factories.run(matsim, randomizer, initialDecisionVariable, objectiveFunction, "./output");
+		factories.run(randomizer, initialDecisionVariable, objectiveFunction);
 
 		System.out.println("... DONE.");
 	}

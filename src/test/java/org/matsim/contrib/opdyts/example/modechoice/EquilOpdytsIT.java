@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,9 +36,7 @@ import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.population.Plan;
 import org.matsim.api.core.v01.population.PlanElement;
 import org.matsim.contrib.opdyts.MATSimOpdytsRunner;
-import org.matsim.contrib.opdyts.MATSimSimulationWrapper;
 import org.matsim.contrib.opdyts.OpdytsConfigGroup;
-import org.matsim.contrib.opdyts.example.modechoice.EveryIterationScoringParameters;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactoryImpl;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
@@ -113,18 +112,29 @@ public class EquilOpdytsIT {
         opdytsExperimentalConfigGroup.setDecisionVariableStepSize(stepSize);        
         opdytsExperimentalConfigGroup.setPopulationSize(2);
         
-        MATSimOpdytsRunner<ModeChoiceDecisionVariable> runner = new MATSimOpdytsRunner<>(scenario);
+//        MATSimOpdytsRunner<ModeChoiceDecisionVariable> runner = new MATSimOpdytsRunner<>(scenario);
+//
+//        MATSimSimulationWrapper<ModeChoiceDecisionVariable> simulator = new MATSimSimulationWrapper<ModeChoiceDecisionVariable>(new MATSimStateFactoryImpl<>(), scenario);
+//        simulator.addOverridingModule(new AbstractModule() {
+//
+//            @Override
+//            public void install() {
+//                bind(ScoringParametersForPerson.class).to(EveryIterationScoringParameters.class);
+//            }
+//        });
+//        runner.addNetworkModeOccupancyAnalyzr(simulator);
 
-        MATSimSimulationWrapper<ModeChoiceDecisionVariable> simulator = new MATSimSimulationWrapper<ModeChoiceDecisionVariable>(new MATSimStateFactoryImpl<>(), scenario);
-        simulator.addOverridingModule(new AbstractModule() {
-
-            @Override
-            public void install() {
-                bind(ScoringParametersForPerson.class).to(EveryIterationScoringParameters.class);
-            }
-        });
-        runner.addNetworkModeOccupancyAnalyzr(simulator);
-
+      MATSimOpdytsRunner<ModeChoiceDecisionVariable> runner = new MATSimOpdytsRunner<>(scenario, new MATSimStateFactoryImpl<>());
+      // MATSimSimulationWrapper<ModeChoiceDecisionVariable> simulator = new MATSimSimulationWrapper<ModeChoiceDecisionVariable>(new MATSimStateFactoryImpl<>(), scenario);
+      // runner.addNetworkModeOccupancyAnalyzr(simulator);
+      // runner.setMATSimSimulationWrapper(simulator);
+      runner.addOverridingModule(new AbstractModule() {
+          @Override
+          public void install() {
+              bind(ScoringParametersForPerson.class).to(EveryIterationScoringParameters.class);
+          }
+      });
+      
         ModeChoiceDecisionVariable initialDecisionVariable = new ModeChoiceDecisionVariable(scenario.getConfig().planCalcScore(), scenario);
         ModeChoiceObjectiveFunction modeChoiceObjectiveFunction = new ModeChoiceObjectiveFunction(new MainModeIdentifier() {
             @Override
@@ -136,11 +146,13 @@ public class EquilOpdytsIT {
             }
         }, modes2consider);
 
-        runner.run(simulator,
+        runner.run(// simulator,
                 new ModeChoiceRandomizer(scenario, modes2consider, opdytsExperimentalConfigGroup),
                 initialDecisionVariable,
-                modeChoiceObjectiveFunction,
-                outputDirectory);
+                modeChoiceObjectiveFunction
+//                ,
+//                outputDirectory
+                );
 
         //checks
         //check the max opdyts transition

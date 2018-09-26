@@ -17,7 +17,6 @@ import org.matsim.api.core.v01.events.handler.VehicleAbortsEventHandler;
 import org.matsim.api.core.v01.events.handler.VehicleEntersTrafficEventHandler;
 import org.matsim.api.core.v01.events.handler.VehicleLeavesTrafficEventHandler;
 import org.matsim.api.core.v01.network.Link;
-import org.matsim.contrib.opdyts.SimulationMacroStateAnalyzer;
 import org.matsim.vehicles.Vehicle;
 
 import floetteroed.utilities.TimeDiscretization;

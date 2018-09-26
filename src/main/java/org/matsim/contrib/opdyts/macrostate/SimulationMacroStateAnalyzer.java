@@ -1,4 +1,4 @@
-package org.matsim.contrib.opdyts;
+package org.matsim.contrib.opdyts.macrostate;
 
 import org.matsim.core.events.handler.EventHandler;
 

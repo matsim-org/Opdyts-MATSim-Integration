@@ -59,7 +59,7 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	private int binSize_s = DEFAULT_BINSIZE_S;
 
 	@StringGetter("binSize")
-	public int getBinSize() {
+	public int getBinSize_s() {
 		return this.binSize_s;
 	}
 
@@ -227,7 +227,7 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 
 	// =============== FIXED-ITERATION-NUMBER CONVERGENCE CRITERION ===============
 
-	private Integer numberOfIterationsForAveraging = null; // was 20
+	private Integer numberOfIterationsForAveraging = null;
 
 	@StringGetter("numberOfIterationsForAveraging")
 	public Integer getNumberOfIterationsForAveraging() {
@@ -239,7 +239,7 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 		this.numberOfIterationsForAveraging = numberOfIterationsForAveraging;
 	}
 
-	private Integer numberOfIterationsForConvergence = null; // was 600
+	private Integer numberOfIterationsForConvergence = null;
 
 	@StringGetter("numberOfIterationsForConvergence")
 	public Integer getNumberOfIterationsForConvergence() {
@@ -250,113 +250,4 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 	public void setNumberOfIterationsForConvergence(int numberOfIterationsForConvergence) {
 		this.numberOfIterationsForConvergence = numberOfIterationsForConvergence;
 	}
-
-	// /*
-	// * How many candidate decision variables one wishes to create per optimization
-	// * stage.
-	// *
-	// * TODO: Rename into something like numberOfCandidateDecisionVariables.
-	// */
-	//
-	// private static final String POPULATION_SIZE = "populationSize";
-	// private int populationSize = 10;
-	//
-	// @StringGetter(POPULATION_SIZE)
-	// public int getPopulationSize() {
-	// return this.populationSize;
-	// }
-	//
-	// @StringSetter(POPULATION_SIZE)
-	// public void setPopulationSize(int populationSize) {
-	// this.populationSize = populationSize;
-	// }
-
-	// /*
-	// * Parametrizes the default convergence criterion.
-	// *
-	// * TODO This assumes an exogenous, iteration-count based convergence
-	// criterion,
-	// * which could (and should) be replaced by a more adaptive convergence test.
-	// * Meaning that these parameters only apply to one concrete implementation of
-	// * ConvergenceCriterion.
-	// *
-	// */
-	//
-	// private static final String NUMBER_OF_ITERATION_TO_AVERAGE =
-	// "numberOfIterationsForAveraging";
-	// private int numberOfIterationsForAveraging = 20;
-	//
-	// @StringGetter(NUMBER_OF_ITERATION_TO_AVERAGE)
-	// public int getNumberOfIterationsForAveraging() {
-	// return numberOfIterationsForAveraging;
-	// }
-	//
-	// @StringSetter(NUMBER_OF_ITERATION_TO_AVERAGE)
-	// public void setNumberOfIterationsForAveraging(int
-	// numberOfIterationsForAveraging) {
-	// this.numberOfIterationsForAveraging = numberOfIterationsForAveraging;
-	// }
-	//
-	// private static final String NUMBER_OF_ITERATION_FOR_CONVERGENCE =
-	// "numberOfIterationsForConvergence";
-	// private int numberOfIterationsForConvergence = 600;
-	//
-	// @StringGetter(NUMBER_OF_ITERATION_FOR_CONVERGENCE)
-	// public int getNumberOfIterationsForConvergence() {
-	// return numberOfIterationsForConvergence;
-	// }
-	//
-	// @StringSetter(NUMBER_OF_ITERATION_FOR_CONVERGENCE)
-	// public void setNumberOfIterationsForConvergence(int
-	// numberOfIterationsForConvergence) {
-	// this.numberOfIterationsForConvergence = numberOfIterationsForConvergence;
-	// }
-
-	// ==================== EXPERIMENTAL ====================
-
-	/*
-	 * Sets a random seed for the random decision variable generation that is
-	 * somehow different from the MATSim-specific random seed.
-	 * 
-	 * TODO This is a parametrization of the DecisionVariableRandomizer, which is
-	 * problem-specific, and not of MATSim/Optyts in general.
-	 * 
-	 */
-
-	// private static final String RANDOM_SEED_TO_RANDOMIZE_DECISION_VARIABLE =
-	// "randomSeedToRandomizeDecisionVariable";
-	// private int randomSeedToRandomizeDecisionVariable = 4711;
-	//
-	// @StringGetter(RANDOM_SEED_TO_RANDOMIZE_DECISION_VARIABLE)
-	// public int getRandomSeedToRandomizeDecisionVariable() {
-	// return this.randomSeedToRandomizeDecisionVariable;
-	// }
-	//
-	// @StringSetter(RANDOM_SEED_TO_RANDOMIZE_DECISION_VARIABLE)
-	// public void setRandomSeedToRandomizeDecisionVariable(int
-	// randomSeedToRandomizeDecisionVariable) {
-	// this.randomSeedToRandomizeDecisionVariable =
-	// randomSeedToRandomizeDecisionVariable;
-	// }
-
-	/*
-	 * A step size scaling for random decision variables.
-	 * 
-	 * TODO This is a parametrization of the DecisionVariableRandomizer, which is
-	 * problem-specific, and not of MATSim/Optyts in general.
-	 */
-
-	// private static final String DECISION_VARIABLE_STEP_SIZE =
-	// "decisionVariableStepSize";
-	// private double decisionVariableStepSize = 0.1;
-	//
-	// @StringGetter(DECISION_VARIABLE_STEP_SIZE)
-	// public double getDecisionVariableStepSize() {
-	// return decisionVariableStepSize;
-	// }
-	//
-	// @StringSetter(DECISION_VARIABLE_STEP_SIZE)
-	// public void setDecisionVariableStepSize(double decisionVariableStepSize) {
-	// this.decisionVariableStepSize = decisionVariableStepSize;
-	// }
 }
