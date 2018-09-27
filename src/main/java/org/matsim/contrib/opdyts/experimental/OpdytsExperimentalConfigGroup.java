@@ -31,7 +31,7 @@ import org.matsim.core.config.ReflectiveConfigGroup;
  */
 public class OpdytsExperimentalConfigGroup extends ReflectiveConfigGroup {
 
-	static final String GROUP_NAME = "opdytsExperimental";
+	public static final String GROUP_NAME = "opdytsExperimental";
 
 	public OpdytsExperimentalConfigGroup() {
 		super(GROUP_NAME);
