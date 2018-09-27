@@ -37,7 +37,7 @@ class NetworkParametersRandomizer implements DecisionVariableRandomizer<NetworkP
 	}
 
 	@Override
-	public List<NetworkParameters> newRandomVariations(NetworkParameters decisionVariable) {
+	public List<NetworkParameters> newRandomVariations(NetworkParameters decisionVariable, int searchIteration) {
 
 		final List<NetworkParameters> result = new ArrayList<>();
 

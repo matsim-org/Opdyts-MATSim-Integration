@@ -55,7 +55,7 @@ public final class ModeChoiceRandomizer implements DecisionVariableRandomizer<Mo
     }
 
     @Override
-    public List<ModeChoiceDecisionVariable> newRandomVariations(ModeChoiceDecisionVariable decisionVariable) {
+    public List<ModeChoiceDecisionVariable> newRandomVariations(ModeChoiceDecisionVariable decisionVariable, int iteration) {
         List<ModeChoiceDecisionVariable> result = new ArrayList<>();
 
         final PlanCalcScoreConfigGroup oldScoringConfig = decisionVariable.getScoreConfig();
