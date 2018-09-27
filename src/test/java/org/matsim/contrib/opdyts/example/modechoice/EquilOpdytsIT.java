@@ -37,7 +37,7 @@ import org.matsim.api.core.v01.population.Plan;
 import org.matsim.api.core.v01.population.PlanElement;
 import org.matsim.contrib.opdyts.MATSimOpdytsRunner;
 import org.matsim.contrib.opdyts.OpdytsConfigGroup;
-import org.matsim.contrib.opdyts.deprecated.OpdytsExperimentalConfigGroup;
+import org.matsim.contrib.opdyts.experimental.OpdytsExperimentalConfigGroup;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactoryImpl;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;

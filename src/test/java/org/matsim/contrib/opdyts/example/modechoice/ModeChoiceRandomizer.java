@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.contrib.opdyts.OpdytsConfigGroup;
-import org.matsim.contrib.opdyts.deprecated.OpdytsExperimentalConfigGroup;
+import org.matsim.contrib.opdyts.experimental.OpdytsExperimentalConfigGroup;
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup;
 
 import floetteroed.opdyts.DecisionVariableRandomizer;

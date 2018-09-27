@@ -17,7 +17,7 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.deprecated;
+package org.matsim.contrib.opdyts.experimental;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
