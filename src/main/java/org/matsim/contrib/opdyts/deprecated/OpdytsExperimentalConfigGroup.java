@@ -17,7 +17,7 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.example.modechoice;
+package org.matsim.contrib.opdyts.deprecated;
 
 import org.matsim.core.config.ReflectiveConfigGroup;
 
@@ -29,11 +29,11 @@ import org.matsim.core.config.ReflectiveConfigGroup;
  * @author Gunnar, as of Sep 2018.
  * 
  */
-class OpdytsExperimentalConfigGroup extends ReflectiveConfigGroup {
+public class OpdytsExperimentalConfigGroup extends ReflectiveConfigGroup {
 
 	static final String GROUP_NAME = "opdytsExperimental";
 
-	OpdytsExperimentalConfigGroup() {
+	public OpdytsExperimentalConfigGroup() {
 		super(GROUP_NAME);
 	}
 
@@ -42,12 +42,12 @@ class OpdytsExperimentalConfigGroup extends ReflectiveConfigGroup {
 	private int populationSize = 10; // TODO magic number
 
 	@StringGetter("numberOfCandidateDecisionVariables")
-	int getPopulationSize() {
+	public int getPopulationSize() {
 		return this.populationSize;
 	}
 
 	@StringSetter("numberOfCandidateDecisionVariables")
-	void setPopulationSize(int populationSize) {
+	public void setPopulationSize(int populationSize) {
 		this.populationSize = populationSize;
 	}
 
@@ -56,12 +56,12 @@ class OpdytsExperimentalConfigGroup extends ReflectiveConfigGroup {
 	private int randomSeedToRandomizeDecisionVariable = 4711; // TODO magic number
 
 	@StringGetter("randomSeedToRandomizeDecisionVariable")
-	int getRandomSeedToRandomizeDecisionVariable() {
+	public int getRandomSeedToRandomizeDecisionVariable() {
 		return this.randomSeedToRandomizeDecisionVariable;
 	}
 
 	@StringSetter("randomSeedToRandomizeDecisionVariable")
-	void setRandomSeedToRandomizeDecisionVariable(int randomSeedToRandomizeDecisionVariable) {
+	public void setRandomSeedToRandomizeDecisionVariable(int randomSeedToRandomizeDecisionVariable) {
 		this.randomSeedToRandomizeDecisionVariable = randomSeedToRandomizeDecisionVariable;
 	}
 
@@ -70,12 +70,12 @@ class OpdytsExperimentalConfigGroup extends ReflectiveConfigGroup {
 	private double decisionVariableStepSize = 0.1; // TODO magic number
 
 	@StringGetter("decisionVariableStepSize")
-	double getDecisionVariableStepSize() {
+	public double getDecisionVariableStepSize() {
 		return decisionVariableStepSize;
 	}
 
 	@StringSetter("decisionVariableStepSize")
-	void setDecisionVariableStepSize(double decisionVariableStepSize) {
+	public void setDecisionVariableStepSize(double decisionVariableStepSize) {
 		this.decisionVariableStepSize = decisionVariableStepSize;
 	}
 }
