@@ -37,7 +37,9 @@ import org.matsim.api.core.v01.population.Plan;
 import org.matsim.api.core.v01.population.PlanElement;
 import org.matsim.contrib.opdyts.MATSimOpdytsRunner;
 import org.matsim.contrib.opdyts.OpdytsConfigGroup;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.utils.EveryIterationScoringParameters;
 import org.matsim.contrib.opdyts.experimental.OpdytsExperimentalConfigGroup;
+import org.matsim.contrib.opdyts.microstate.MATSimState;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactoryImpl;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
@@ -125,7 +127,7 @@ public class EquilOpdytsIT {
 //        });
 //        runner.addNetworkModeOccupancyAnalyzr(simulator);
 
-      MATSimOpdytsRunner<ModeChoiceDecisionVariable> runner = new MATSimOpdytsRunner<>(scenario, new MATSimStateFactoryImpl<>());
+      MATSimOpdytsRunner<ModeChoiceDecisionVariable, MATSimState> runner = new MATSimOpdytsRunner<>(scenario, new MATSimStateFactoryImpl<>());
       // MATSimSimulationWrapper<ModeChoiceDecisionVariable> simulator = new MATSimSimulationWrapper<ModeChoiceDecisionVariable>(new MATSimStateFactoryImpl<>(), scenario);
       // runner.addNetworkModeOccupancyAnalyzr(simulator);
       // runner.setMATSimSimulationWrapper(simulator);
@@ -135,6 +137,8 @@ public class EquilOpdytsIT {
               bind(ScoringParametersForPerson.class).to(EveryIterationScoringParameters.class);
           }
       });
+      
+      runner.setFreezeRandomSeed(true);
       
         ModeChoiceDecisionVariable initialDecisionVariable = new ModeChoiceDecisionVariable(scenario.getConfig().planCalcScore(), scenario);
         ModeChoiceObjectiveFunction modeChoiceObjectiveFunction = new ModeChoiceObjectiveFunction(new MainModeIdentifier() {

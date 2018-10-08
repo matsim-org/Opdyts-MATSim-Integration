@@ -25,39 +25,55 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.matsim.api.core.v01.population.Population;
-import org.matsim.contrib.opdyts.WireOpdytsIntoMATSimControlerListener;
-import org.matsim.contrib.opdyts.WireOpdytsIntoMATSimControlerListener.BeforeMobsimAnalyzer;
 import org.matsim.contrib.opdyts.macrostate.SimulationMacroStateAnalyzer;
-import org.matsim.core.controler.events.BeforeMobsimEvent;
 import org.matsim.core.utils.io.IOUtils;
 
 import floetteroed.utilities.math.Vector;
 
 /**
+ * TODO NOT TESTED!
  *
  * @author amit
  * @author Gunnar Flötteröd
  *
  */
-public class AmitsWireOpdytsIntoMATSimControlerListener
-		implements WireOpdytsIntoMATSimControlerListener.BeforeMobsimAnalyzer {
+public class AmitSimulationMacroStateAnalyzerFileWritingWrapper implements SimulationMacroStateAnalyzer {
 
+	private final SimulationMacroStateAnalyzer analyzer;
+
+	final String filePrefix;
+	
 	private final int fileWritingIteration;
+	
+	private boolean fileHasBeenWritten = false;
+	
+	private int iteration = 0;
 
-	public AmitsWireOpdytsIntoMATSimControlerListener(final int fileWritingIteration) {
+	public AmitSimulationMacroStateAnalyzerFileWritingWrapper(final SimulationMacroStateAnalyzer analyzer,
+			final String filePrefix, final int fileWritingIteration) {
+		this.analyzer = analyzer;
+		this.filePrefix = filePrefix;
 		this.fileWritingIteration = fileWritingIteration;
 	}
 
-	public void run(BeforeMobsimEvent event, Population population,
-			List<SimulationMacroStateAnalyzer> simulationStateAnalyzers) {
-		if (event.getIteration() % this.fileWritingIteration == 0) {
-			for (SimulationMacroStateAnalyzer analyzer : simulationStateAnalyzers) {
-				String outFile = event.getServices().getControlerIO().getIterationFilename(event.getIteration(),
-						"stateVector_" + analyzer.getClass().getSimpleName() + ".txt");
-				writeData(analyzer.newStateVectorRepresentation(), outFile);
+	@Override
+	public void clear() {
+		this.analyzer.clear();
+		this.fileHasBeenWritten = false;
+	}
+
+	@Override
+	public Vector newStateVectorRepresentation() {
+		final Vector result = this.analyzer.newStateVectorRepresentation();
+		if (!this.fileHasBeenWritten) {
+			if (this.iteration % this.fileWritingIteration == 0) {
+				String outFile = filePrefix + this.analyzer.getClass().getSimpleName() + ".txt";
+				writeData(result, outFile);
 			}
+			this.iteration++;
+			this.fileHasBeenWritten = true;
 		}
+		return result;
 	}
 
 	void writeData(final Vector vector, final String outFile) {
@@ -73,5 +89,4 @@ public class AmitsWireOpdytsIntoMATSimControlerListener
 			throw new RuntimeException("Data is not written/read. Reason : " + e);
 		}
 	}
-
 }

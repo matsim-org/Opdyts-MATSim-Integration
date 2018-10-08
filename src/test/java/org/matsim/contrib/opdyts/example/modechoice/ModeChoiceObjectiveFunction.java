@@ -24,9 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.inject.Inject;
-import floetteroed.opdyts.ObjectiveFunction;
-import floetteroed.opdyts.SimulatorState;
+
 import org.apache.log4j.Logger;
 import org.matsim.analysis.TransportPlanningMainModeIdentifier;
 import org.matsim.api.core.v01.Id;
@@ -46,12 +46,14 @@ import org.matsim.core.router.TripRouter;
 import org.matsim.core.router.TripStructureUtils;
 import org.matsim.core.utils.geometry.CoordUtils;
 
+import floetteroed.opdyts.ObjectiveFunction;
+
 /**
  *
  * @author Kai Nagel based on Gunnar Flötteröd
  *
  */
-public class ModeChoiceObjectiveFunction implements ObjectiveFunction {
+public class ModeChoiceObjectiveFunction implements ObjectiveFunction<MATSimState> {
 
     private static final Logger LOGGER = Logger.getLogger(ModeChoiceObjectiveFunction.class);
 
@@ -87,10 +89,10 @@ public class ModeChoiceObjectiveFunction implements ObjectiveFunction {
     }
 
     @Override
-    public double value(SimulatorState state) {
+    public double value(MATSimState matSimState) {
         resetContainers();
 
-        MATSimState matSimState = (MATSimState) state;
+        // MATSimState matSimState = (MATSimState) state;
         Set<Id<Person>> persons = matSimState.getPersonIdView();
 
         for (Id<Person> personId : persons) {

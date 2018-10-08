@@ -3,6 +3,7 @@ package org.matsim.contrib.opdyts;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.opdyts.macrostate.SimulationMacroStateAnalyzer;
@@ -20,11 +21,11 @@ import floetteroed.opdyts.trajectorysampling.TrajectorySampler;
  * @author michaelzilske created this on 08/10/15.
  * @author Gunnar modified this since 2015.
  */
-public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simulator<U> {
+class MATSimSimulationWrapper<U extends DecisionVariable, X extends SimulatorState> implements Simulator<U, X> {
 
 	// -------------------- MEMBERS --------------------
 
-	private final MATSimStateFactory<U> stateFactory;
+	private final MATSimStateFactory<U, X> stateFactory;
 
 	private final Scenario scenario;
 
@@ -35,9 +36,13 @@ public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simu
 
 	private AbstractModule overrides = AbstractModule.emptyModule();
 
+	private boolean freezeRandomSeed = false;
+
+	private int numberOfCompletedSimulationRuns = 0;
+
 	// -------------------- CONSTRUCTION --------------------
 
-	public MATSimSimulationWrapper(final Scenario scenario, final MATSimStateFactory<U> stateFactory) {
+	MATSimSimulationWrapper(final Scenario scenario, final MATSimStateFactory<U, X> stateFactory) {
 		this.stateFactory = stateFactory;
 		this.scenario = scenario;
 
@@ -52,40 +57,29 @@ public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simu
 
 	// -------------------- CONFIGURATION --------------------
 
-	public void addSimulationStateAnalyzer(final SimulationMacroStateAnalyzer analyzer) {
+	void addSimulationStateAnalyzer(final SimulationMacroStateAnalyzer analyzer) {
 		if (this.simulationStateAnalyzers.contains(analyzer)) {
 			throw new RuntimeException("Analyzer " + analyzer + " has already been added.");
 		}
 		this.simulationStateAnalyzers.add(analyzer);
 	}
 
-	public final void setReplacingModules(final AbstractModule... replacingModules) {
+	void setReplacingModules(final AbstractModule... replacingModules) {
 		this.replacingModules = replacingModules;
 	}
 
-	public final void addOverridingModule(AbstractModule abstractModule) {
+	void addOverridingModule(AbstractModule abstractModule) {
 		this.overrides = AbstractModule.override(Arrays.asList(this.overrides), abstractModule);
 	}
 
-	// ---------- TODO FOR COMPATIBLITY WITH AMIT'S CODE. REVISIT. ----------
-
-	private WireOpdytsIntoMATSimControlerListener.BeforeMobsimAnalyzer beforeMobsimAnalyzer = null;
-
-	public void setBeforeMobsimAnalyzer(
-			WireOpdytsIntoMATSimControlerListener.BeforeMobsimAnalyzer beforeMobsimAnalyzer) {
-		this.beforeMobsimAnalyzer = beforeMobsimAnalyzer;
-	}
-
-	private int numberOfCompletedSimulationRuns = 0;
-
-	public int getNumberOfCompletedSimulationRuns() {
-		return this.numberOfCompletedSimulationRuns;
+	public void setFreezeRandomSeed(final boolean freezeRandomSeed) {
+		this.freezeRandomSeed = freezeRandomSeed;
 	}
 
 	// --------------- IMPLEMENTATION OF Simulator INTERFACE ---------------
 
 	@Override
-	public SimulatorState run(final TrajectorySampler<U> trajectorySampler) {
+	public SimulatorState run(final TrajectorySampler<U, X> trajectorySampler) {
 
 		/*
 		 * (1) This function is called in many iterations. Each time, it executes a
@@ -97,14 +91,17 @@ public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simu
 		outputDirectory = outputDirectory.substring(0, outputDirectory.lastIndexOf("_")) + "_"
 				+ this.numberOfCompletedSimulationRuns;
 		this.scenario.getConfig().controler().setOutputDirectory(outputDirectory);
+		if (!this.freezeRandomSeed) {
+			this.scenario.getConfig().global().setRandomSeed((new Random()).nextLong());
+		}
 
 		/*
 		 * (2) Create the MATSimDecisionVariableSetEvaluator that is supposed to
 		 * "optimize along" the MATSim run of this iteration.
 		 */
 
-		final WireOpdytsIntoMATSimControlerListener<U> matsimDecisionVariableEvaluator = new WireOpdytsIntoMATSimControlerListener<>(
-				trajectorySampler, this.stateFactory, this.simulationStateAnalyzers, this.beforeMobsimAnalyzer);
+		final WireOpdytsIntoMATSimControlerListener<U, X> wireOpdytsIntoMATSimControlerListener = new WireOpdytsIntoMATSimControlerListener<>(
+				trajectorySampler, this.stateFactory, this.simulationStateAnalyzers);
 
 		/*
 		 * (3) Create, configure, and run a new MATSim Controler.
@@ -115,41 +112,28 @@ public class MATSimSimulationWrapper<U extends DecisionVariable> implements Simu
 			controler.setModules(this.replacingModules);
 		}
 		controler.addOverridingModule(this.overrides);
-
-		controler.addControlerListener(matsimDecisionVariableEvaluator);
+		controler.addControlerListener(wireOpdytsIntoMATSimControlerListener);
 		controler.addOverridingModule(new AbstractModule() {
 			@Override
 			public void install() {
-				binder().requestInjection(stateFactory);
-			}
-		});
-		controler.addOverridingModule(new AbstractModule() {
-			@Override
-			public void install() {
-				binder().requestInjection(matsimDecisionVariableEvaluator);
-			}
-		});
-		controler.addOverridingModule(new AbstractModule() {
-			@Override
-			public void install() {
-				binder().requestInjection(trajectorySampler.getObjectiveFunction());
+				binder().requestInjection(wireOpdytsIntoMATSimControlerListener);
 			}
 		});
 		controler.setTerminationCriterion(new TerminationCriterion() {
 			@Override
 			public boolean continueIterations(int iteration) {
-				return (!matsimDecisionVariableEvaluator.foundSolution());
+				return (!wireOpdytsIntoMATSimControlerListener.foundSolution());
 			}
 		});
 
 		controler.run();
 		this.numberOfCompletedSimulationRuns++;
 
-		return matsimDecisionVariableEvaluator.getFinalState();
+		return wireOpdytsIntoMATSimControlerListener.getFinalState();
 	}
 
 	@Override
-	public SimulatorState run(final TrajectorySampler<U> evaluator, final SimulatorState initialState) {
+	public SimulatorState run(final TrajectorySampler<U, X> evaluator, final SimulatorState initialState) {
 		if (initialState != null) {
 			initialState.implementInSimulation();
 		}

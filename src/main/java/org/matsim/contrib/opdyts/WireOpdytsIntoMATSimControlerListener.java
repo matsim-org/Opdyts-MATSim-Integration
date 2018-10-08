@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.matsim.api.core.v01.population.Population;
 import org.matsim.contrib.opdyts.macrostate.SimulationMacroStateAnalyzer;
-import org.matsim.contrib.opdyts.microstate.MATSimState;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactory;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.controler.events.BeforeMobsimEvent;
@@ -18,6 +17,7 @@ import org.matsim.core.controler.listener.StartupListener;
 import com.google.inject.Inject;
 
 import floetteroed.opdyts.DecisionVariable;
+import floetteroed.opdyts.SimulatorState;
 import floetteroed.opdyts.trajectorysampling.TrajectorySampler;
 import floetteroed.utilities.math.Vector;
 
@@ -26,16 +26,8 @@ import floetteroed.utilities.math.Vector;
  * @author Gunnar Flötteröd
  * 
  */
-public class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable>
+class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extends SimulatorState>
 		implements StartupListener, BeforeMobsimListener, ShutdownListener {
-
-	// -------------------- INNER CLASS --------------------
-
-	// TODO To maintain Amit's analysis functionality. Needs to be revisited.
-	public static interface BeforeMobsimAnalyzer {
-		public void run(BeforeMobsimEvent event, Population population,
-				List<SimulationMacroStateAnalyzer> macroStateAnalyzers);
-	}
 
 	// -------------------- CONSTANTS --------------------
 
@@ -45,14 +37,12 @@ public class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable>
 
 	// -------------------- MEMBERS --------------------
 
-	private final TrajectorySampler<U> trajectorySampler;
+	private final TrajectorySampler<U, X> trajectorySampler;
 
-	private final MATSimStateFactory<U> stateFactory;
+	private final MATSimStateFactory<U, X> stateFactory;
 
 	// A list because the order matters in the state space vector.
 	private final List<SimulationMacroStateAnalyzer> simulationStateAnalyzers;
-
-	private final BeforeMobsimAnalyzer beforeMobsimAnalyzer;
 
 	@Inject
 	private EventsManager eventsManager;
@@ -62,24 +52,22 @@ public class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable>
 
 	private LinkedList<Vector> stateList = null;
 
-	private MATSimState finalState = null;
+	private X finalState = null;
 
 	private boolean justStarted = true;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public WireOpdytsIntoMATSimControlerListener(final TrajectorySampler<U> trajectorySampler,
-			final MATSimStateFactory<U> stateFactory, final List<SimulationMacroStateAnalyzer> simulationStateAnalyzers,
-			final BeforeMobsimAnalyzer beforeMobsimAnalyzer) {
+	WireOpdytsIntoMATSimControlerListener(final TrajectorySampler<U, X> trajectorySampler,
+			final MATSimStateFactory<U, X> stateFactory, final List<SimulationMacroStateAnalyzer> simulationStateAnalyzers) {
 		this.trajectorySampler = trajectorySampler;
 		this.stateFactory = stateFactory;
 		this.simulationStateAnalyzers = simulationStateAnalyzers;
-		this.beforeMobsimAnalyzer = beforeMobsimAnalyzer;
 	}
 
 	// -------------------- INTERNALS --------------------
 
-	private MATSimState newState() {
+	private X newState() {
 		final Vector newSummaryStateVector;
 		if (this.averageMemory) {
 			// average state vectors
@@ -98,11 +86,11 @@ public class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable>
 
 	// -------------------- RESULT ACCESS --------------------
 
-	public boolean foundSolution() {
+	boolean foundSolution() {
 		return this.trajectorySampler.foundSolution();
 	}
 
-	public MATSimState getFinalState() {
+	X getFinalState() {
 		return finalState;
 	}
 
@@ -137,10 +125,6 @@ public class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable>
 			this.justStarted = false;
 
 		} else {
-
-			if (this.beforeMobsimAnalyzer != null) {
-				this.beforeMobsimAnalyzer.run(event, this.population, this.simulationStateAnalyzers);
-			}
 
 			/*
 			 * (2) Extract the instantaneous state vector.

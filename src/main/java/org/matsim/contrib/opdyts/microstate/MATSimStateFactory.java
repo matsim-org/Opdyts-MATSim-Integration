@@ -3,6 +3,7 @@ package org.matsim.contrib.opdyts.microstate;
 import org.matsim.api.core.v01.population.Population;
 
 import floetteroed.opdyts.DecisionVariable;
+import floetteroed.opdyts.SimulatorState;
 import floetteroed.utilities.math.Vector;
 
 /**
@@ -13,7 +14,7 @@ import floetteroed.utilities.math.Vector;
  * @see MATSimState
  * @see DecisionVariable
  */
-public interface MATSimStateFactory<U extends DecisionVariable> {
+public interface MATSimStateFactory<U extends DecisionVariable, X extends SimulatorState> {
 
 	/**
 	 * Creates a new object representation of the current MATSim simulation state.
@@ -33,6 +34,6 @@ public interface MATSimStateFactory<U extends DecisionVariable> {
 	 *            the decision variable that has led to the state to be created
 	 * @return the current MATSim simulation state
 	 */
-	public MATSimState newState(Population population, Vector stateVector, U decisionVariable);
+	public X newState(Population population, Vector stateVector, U decisionVariable);
 
 }

@@ -16,7 +16,7 @@
  *   See also COPYING, LICENSE and WARRANTY file                           *
  *                                                                         *
  * *********************************************************************** */
-package org.matsim.contrib.opdyts.example.modechoice;
+package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.utils;
 
 import java.util.HashMap;
 import java.util.Map;
