@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.contrib.opdyts.MATSimOpdytsRunner.WantsControlerReferenceBeforeInjection;
 import org.matsim.contrib.opdyts.macrostate.SimulationMacroStateAnalyzer;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactory;
 import org.matsim.core.controler.AbstractModule;
@@ -31,6 +32,8 @@ class MATSimSimulationWrapper<U extends DecisionVariable, X extends SimulatorSta
 
 	// A list because the order matters in the state space vector.
 	private final List<SimulationMacroStateAnalyzer> simulationStateAnalyzers = new ArrayList<>();
+
+	private final List<WantsControlerReferenceBeforeInjection> wantsControlerReferenceBeforeInjectionList = new ArrayList<>();
 
 	private final int numberOfEnBlockMatsimIterations;
 
@@ -66,6 +69,11 @@ class MATSimSimulationWrapper<U extends DecisionVariable, X extends SimulatorSta
 			throw new RuntimeException("Analyzer " + analyzer + " has already been added.");
 		}
 		this.simulationStateAnalyzers.add(analyzer);
+	}
+
+	public void addWantsControlerReferenceBeforeInjection(
+			WantsControlerReferenceBeforeInjection wantsControlerReferenceBeforeInjection) {
+		this.wantsControlerReferenceBeforeInjectionList.add(wantsControlerReferenceBeforeInjection);
 	}
 
 	void setReplacingModules(final AbstractModule... replacingModules) {
@@ -113,6 +121,11 @@ class MATSimSimulationWrapper<U extends DecisionVariable, X extends SimulatorSta
 		 */
 
 		final Controler controler = new Controler(this.scenario);
+
+		for (WantsControlerReferenceBeforeInjection wantsControlerReference : this.wantsControlerReferenceBeforeInjectionList) {
+			wantsControlerReference.meet(controler);
+		}
+
 		if ((this.replacingModules != null) && (this.replacingModules.length > 0)) {
 			controler.setModules(this.replacingModules);
 		}
