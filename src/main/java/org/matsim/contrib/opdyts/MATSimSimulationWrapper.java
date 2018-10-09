@@ -32,6 +32,8 @@ class MATSimSimulationWrapper<U extends DecisionVariable, X extends SimulatorSta
 	// A list because the order matters in the state space vector.
 	private final List<SimulationMacroStateAnalyzer> simulationStateAnalyzers = new ArrayList<>();
 
+	private final int numberOfEnBlockMatsimIterations;
+
 	private AbstractModule[] replacingModules = null;
 
 	private AbstractModule overrides = AbstractModule.emptyModule();
@@ -42,9 +44,11 @@ class MATSimSimulationWrapper<U extends DecisionVariable, X extends SimulatorSta
 
 	// -------------------- CONSTRUCTION --------------------
 
-	MATSimSimulationWrapper(final Scenario scenario, final MATSimStateFactory<U, X> stateFactory) {
+	MATSimSimulationWrapper(final Scenario scenario, final MATSimStateFactory<U, X> stateFactory,
+			final int numberOfEnBlockMATSimIterations) {
 		this.stateFactory = stateFactory;
 		this.scenario = scenario;
+		this.numberOfEnBlockMatsimIterations = numberOfEnBlockMATSimIterations;
 
 		// Because the simulation is run multiple times.
 		final String outputDirectory = this.scenario.getConfig().controler().getOutputDirectory();
@@ -101,7 +105,8 @@ class MATSimSimulationWrapper<U extends DecisionVariable, X extends SimulatorSta
 		 */
 
 		final WireOpdytsIntoMATSimControlerListener<U, X> wireOpdytsIntoMATSimControlerListener = new WireOpdytsIntoMATSimControlerListener<>(
-				trajectorySampler, this.stateFactory, this.simulationStateAnalyzers);
+				trajectorySampler, this.stateFactory, this.simulationStateAnalyzers,
+				this.numberOfEnBlockMatsimIterations);
 
 		/*
 		 * (3) Create, configure, and run a new MATSim Controler.

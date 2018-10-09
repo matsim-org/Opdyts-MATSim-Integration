@@ -205,7 +205,7 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 
 	@StringGetter("warmUpIterations")
 	public int getWarmUpIterations() {
-		return warmUpIterations;
+		return this.warmUpIterations;
 	}
 
 	@StringSetter("warmUpIterations")
@@ -217,12 +217,28 @@ public class OpdytsConfigGroup extends ReflectiveConfigGroup {
 
 	@StringGetter("useAllWarmUpIterations")
 	public boolean getUseAllWarmUpIterations() {
-		return useAllWarmUpIterations;
+		return this.useAllWarmUpIterations;
 	}
 
 	@StringSetter("useAllWarmUpIterations")
 	public void setUseAllWarmUpIterations(boolean useAllWarmUpIterations) {
 		this.useAllWarmUpIterations = useAllWarmUpIterations;
+	}
+
+	// ==================== EN BLOCK SIMULATION ITERATIONS ====================
+
+	public static final int DEFAULT_ENBLOCKSIMULATIONITERATIONS = 1;
+	
+	private int enBlockSimulationIterations = DEFAULT_ENBLOCKSIMULATIONITERATIONS;
+
+	@StringGetter("enBlockSimulationIterations")
+	public int getEnBlockSimulationIterations() {
+		return this.enBlockSimulationIterations;
+	}
+
+	@StringSetter("enBlockSimulationIterations")
+	public void setEnBlockSimulationIterations(int enBlockSimulationIterations) {
+		this.enBlockSimulationIterations = enBlockSimulationIterations;
 	}
 
 	// =============== FIXED-ITERATION-NUMBER CONVERGENCE CRITERION ===============

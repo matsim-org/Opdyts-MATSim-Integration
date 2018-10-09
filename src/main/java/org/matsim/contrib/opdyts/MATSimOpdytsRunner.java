@@ -29,10 +29,10 @@ import floetteroed.utilities.TimeDiscretization;
  * Implementations of the following interfaces receive injections during every
  * optimization stage (comprising one MATSim run):
  * <ul>
- * <li> StateFactory
- * <li> ObjectiveFunction
- * <li> DecisionVariableRandomizer
- * <li> ConvergenceCriterion
+ * <li>StateFactory
+ * <li>ObjectiveFunction
+ * <li>DecisionVariableRandomizer
+ * <li>ConvergenceCriterion
  * </ul>
  * 
  * @author Gunnar Flötteröd
@@ -65,7 +65,8 @@ public class MATSimOpdytsRunner<U extends DecisionVariable, X extends SimulatorS
 		this.timeDiscretization = new TimeDiscretization(this.opdytsConfig.getStartTime_s(),
 				this.opdytsConfig.getBinSize_s(), this.opdytsConfig.getBinCount());
 
-		this.matsimSimulationWrapper = new MATSimSimulationWrapper<>(scenario, stateFactory);
+		this.matsimSimulationWrapper = new MATSimSimulationWrapper<>(scenario, stateFactory,
+				opdytsConfig.getEnBlockSimulationIterations());
 		final Set<String> networkModes = new HashSet<>(scenario.getConfig().qsim().getMainModes());
 		if (networkModes.size() > 0) {
 			this.matsimSimulationWrapper

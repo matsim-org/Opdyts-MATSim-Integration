@@ -25,7 +25,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.Rule;
-import org.junit.Test;
 import org.matsim.analysis.LegHistogram;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.opdyts.MATSimOpdytsRunner;
@@ -90,7 +89,7 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 		protected void addComponents(final MATSimState state) {
 			state.putComponent(LegHistogramObjectiveFunction.StateComponent.class, this.legHistogramData);
 		}
-	};
+	}
 
 	public void test() {
 
