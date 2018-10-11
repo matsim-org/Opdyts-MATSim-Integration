@@ -147,6 +147,11 @@
             <version>3.6.1</version>
         </dependency>
         <dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency> 	        
+        <dependency>
             <groupId>floetteroed.utilities</groupId>
             <artifactId>floetteroed-utilities</artifactId>
             <version>1.0.0</version>
