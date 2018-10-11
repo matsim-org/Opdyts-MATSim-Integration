@@ -10,7 +10,6 @@ import org.matsim.contrib.opdyts.macrostate.SimulationMacroStateAnalyzer;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactory;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.AbstractModule;
-import org.matsim.core.controler.Controler;
 import org.matsim.core.gbl.MatsimRandom;
 
 import floetteroed.opdyts.DecisionVariable;
@@ -41,18 +40,6 @@ import floetteroed.utilities.TimeDiscretization;
  */
 public class MATSimOpdytsRunner<U extends DecisionVariable, X extends SimulatorState> {
 
-	// -------------------- INNER CLASS --------------------
-
-	/*
-	 * TODO This is fairly ad hoc, in order to be able to use the pSim as is. Should be revisited.
-	 */
-	
-	public static interface WantsControlerReferenceBeforeInjection {
-		
-		public void meet(Controler controler);
-		
-	}
-	
 	// -------------------- CONSTANTS --------------------
 
 	private final String outputDirectory;
@@ -132,10 +119,10 @@ public class MATSimOpdytsRunner<U extends DecisionVariable, X extends SimulatorS
 		this.matsimSimulationWrapper.setFreezeRandomSeed(freezeRandomSeed);
 	}
 
-	public void addWantsControlerReferenceBeforeInjection(WantsControlerReferenceBeforeInjection wantsControlerReferenceBeforeInjection) {
-		this.matsimSimulationWrapper.addWantsControlerReferenceBeforeInjection(wantsControlerReferenceBeforeInjection);
+	public void setOpdytsProgressListener(OpdytsProgressListener opdytsProgressListener) {
+		this.matsimSimulationWrapper.setOpdytsProgressListener(opdytsProgressListener);
 	}
-	
+
 	// -------------------- RUN --------------------
 
 	public void run(final DecisionVariableRandomizer<U> randomizer, final U initialDecisionVariable,

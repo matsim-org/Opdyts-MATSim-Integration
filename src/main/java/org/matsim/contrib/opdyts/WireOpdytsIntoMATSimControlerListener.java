@@ -54,6 +54,9 @@ class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extend
 	@Inject
 	private Population population;
 
+	@Inject
+	private OpdytsProgressListener opdytsProgressListener;
+
 	private LinkedList<Vector> stateList = null;
 
 	private X finalState = null;
@@ -106,6 +109,8 @@ class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extend
 	@Override
 	public void notifyStartup(final StartupEvent event) {
 
+		this.opdytsProgressListener.callToNotifyStartup_opdyts(event);
+
 		this.stateList = new LinkedList<Vector>();
 
 		if (this.simulationStateAnalyzers.isEmpty()) {
@@ -122,7 +127,11 @@ class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extend
 	@Override
 	public void notifyBeforeMobsim(final BeforeMobsimEvent event) {
 
+		this.opdytsProgressListener.callToNotifyBeforeMobsim_opdyts(event);
+
 		if (event.getIteration() % this.numberOfEnBlockMatsimIterations == 0) {
+
+			this.opdytsProgressListener.expectToBeBeforePhysicalMobsimRun(event.getIteration());
 
 			/*
 			 * (1) The mobsim must have been run at least once to allow for the extraction
@@ -131,9 +140,12 @@ class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extend
 			 */
 			if (this.justStarted) {
 
+				this.opdytsProgressListener.beforeVeryFirstPhysicalMobsimRun(event.getIteration());
 				this.justStarted = false;
 
 			} else {
+
+				this.opdytsProgressListener.beforeOtherThanVeryFirstPhysicalMobsimRun(event.getIteration());
 
 				/*
 				 * (2) Extract the instantaneous state vector.
@@ -166,6 +178,8 @@ class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extend
 				 * provide the resulting state.
 				 */
 				this.trajectorySampler.afterIteration(this.newState());
+				
+				this.opdytsProgressListener.extractedStateAndCalledTrajectorySampler(event.getIteration());
 			}
 
 			/*
@@ -176,19 +190,25 @@ class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extend
 				analyzer.clear();
 				this.eventsManager.addHandler(analyzer);
 			}
+			this.opdytsProgressListener.clearedAndAddedMacroStateAnalyzers(event.getIteration());
+			
 		}
 	}
 
 	@Override
 	public void notifyAfterMobsim(final AfterMobsimEvent event) {
 
+		this.opdytsProgressListener.callToNotifyAfterMobsim_opdyts(event);
+		
 		if (event.getIteration() % this.numberOfEnBlockMatsimIterations == 0) {
 			/*
 			 * This is after a physical mobsim. Remove the macro state analyzers.
 			 */
+			this.opdytsProgressListener.expectToBeAfterAPhysicalMobsimRun(event.getIteration());
 			for (SimulationMacroStateAnalyzer analyzer : this.simulationStateAnalyzers) {
 				this.eventsManager.removeHandler(analyzer);
 			}
+			this.opdytsProgressListener.removedButDidNotClearMacroStateAnalyzers(event.getIteration());
 		}
 	}
 
