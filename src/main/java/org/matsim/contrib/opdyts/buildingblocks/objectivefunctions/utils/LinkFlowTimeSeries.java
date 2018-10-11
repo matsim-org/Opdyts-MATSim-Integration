@@ -81,6 +81,7 @@ public class LinkFlowTimeSeries implements LinkEnterEventHandler {
 		if (this.logFileName != null) {
 			final StringBuffer line = new StringBuffer();
 			if (this.justStarted) {
+				this.justStarted = false;
 				final File file = new File(this.logFileName);
 				if (file.exists()) {
 					file.delete();
