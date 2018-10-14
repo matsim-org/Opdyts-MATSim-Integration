@@ -154,7 +154,8 @@
         <dependency>
             <groupId>com.github.gunnarfloetteroed</groupId>
             <artifactId>java</artifactId>
-            <version>master-SNAPSHOT</version>
+            <!-- <version>master-SNAPSHOT</version>-->
+            <version>ac6c8b4a39</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
