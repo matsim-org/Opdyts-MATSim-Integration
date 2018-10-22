@@ -120,7 +120,6 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 		controler.run();
 	}
 
-	@Test
 	public void test2() {
 
 		Config config = ConfigUtils.loadConfig(IOUtils.newUrl(EQUIL_DIR, "config.xml"));
