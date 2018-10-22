@@ -17,9 +17,8 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.openingtimes;
+package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.activitytimes;
 
-import org.junit.Test;
 import org.matsim.core.config.Config;
 
 /**
@@ -27,17 +26,23 @@ import org.matsim.core.config.Config;
  * @author Gunnar Flötteröd
  *
  */
-public class OpeningTimesRandomizerTest {
+public class OpeningTime extends ActivityTime<OpeningTime> {
 
-	@Test
-	public void test() {
+	// -------------------- CONSTRUCTION --------------------
 
-		Config config = OpeningTimesTest.newInitializedTestConfig();
-		OpeningTimes openingTimes = new OpeningTimes(config);
-		OpeningTimesRandomizer randomizer = new OpeningTimesRandomizer(2, 10, 0);
-		randomizer.newRandomVariations(openingTimes, 123);
-				
+	public OpeningTime(final Config config, final String activityType, final double value_s) {
+		super(config, activityType, value_s);
 	}
 
-}
+	// --------------- IMPLEMENTATION OF ActivityTime ---------------
 
+	@Override
+	public void implementInSimulation() {
+		this.getActivityParams().setOpeningTime(this.getValue());
+	}
+
+	@Override
+	public OpeningTime newDeepCopy() {
+		return new OpeningTime(this.getConfig(), this.getActivityType(), this.getValue());
+	}
+}

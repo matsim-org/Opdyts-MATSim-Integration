@@ -19,6 +19,7 @@ public class MATSimStateFactoryImpl<U extends DecisionVariable, X extends Simula
 	public MATSimStateFactoryImpl() {
 	}
 
+	@Override
 	public final MATSimState newState(final Population population, final Vector stateVector, final U decisionVariable) {
 		final MATSimState result = new MATSimState(population, stateVector);
 		this.addComponents(result);

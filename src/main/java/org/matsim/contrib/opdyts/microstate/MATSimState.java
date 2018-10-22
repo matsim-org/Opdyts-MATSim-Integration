@@ -137,6 +137,8 @@ public class MATSimState implements SimulatorState {
 	 * instances of ObjectiveFunction access to supplementary simulation state
 	 * information of arbitrary type. See also MATSimStateFactoryImpl. Gunnar,
 	 * 2018-10-08.
+	 * 
+	 * TODO Use TypsafeMap.
 	 */
 
 	private final Map<Class<?>, Object> class2component = new LinkedHashMap<Class<?>, Object>();

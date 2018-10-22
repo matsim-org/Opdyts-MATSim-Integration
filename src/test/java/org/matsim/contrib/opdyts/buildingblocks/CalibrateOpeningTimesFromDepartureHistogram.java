@@ -25,13 +25,19 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.Rule;
+import org.junit.Test;
 import org.matsim.analysis.LegHistogram;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.opdyts.MATSimOpdytsRunner;
 import org.matsim.contrib.opdyts.OpdytsConfigGroup;
 import org.matsim.contrib.opdyts.buildingblocks.convergencecriteria.AR1ConvergenceCriterion;
-import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.openingtimes.OpeningTimes;
-import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.openingtimes.OpeningTimesRandomizer;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.activitytimes.ClosingTime;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.activitytimes.OpeningTime;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.activitytimes.TypicalDuration;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites.CompositeDecisionVariable;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites.CompositeDecisionVariableAndRandomizerBuilder;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites.OneAtATimeRandomizer;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.scalar.ScalarRandomizer;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.utils.EveryIterationScoringParameters;
 import org.matsim.contrib.opdyts.buildingblocks.objectivefunctions.WeightedSumObjectiveFunction;
 import org.matsim.contrib.opdyts.buildingblocks.objectivefunctions.calibration.LegHistogramObjectiveFunction;
@@ -39,6 +45,7 @@ import org.matsim.contrib.opdyts.microstate.MATSimState;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactoryImpl;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.config.groups.PlanCalcScoreConfigGroup.ActivityParams;
 import org.matsim.core.config.groups.StrategyConfigGroup.StrategySettings;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
@@ -48,6 +55,7 @@ import org.matsim.core.controler.listener.AfterMobsimListener;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.core.scoring.functions.ScoringParametersForPerson;
 import org.matsim.core.utils.io.IOUtils;
+import org.matsim.core.utils.misc.Time;
 import org.matsim.examples.ExamplesUtils;
 import org.matsim.testcases.MatsimTestUtils;
 
@@ -55,6 +63,7 @@ import com.google.inject.Inject;
 
 import floetteroed.opdyts.DecisionVariableRandomizer;
 import floetteroed.opdyts.ObjectiveFunction;
+import floetteroed.utilities.Units;
 
 /**
  *
@@ -68,7 +77,9 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 
 	private static URL EQUIL_DIR = ExamplesUtils.getTestScenarioURL("equil");
 
-	static class MyStateFactory extends MATSimStateFactoryImpl<OpeningTimes, MATSimState>
+	// TODO It may be a rather bad idea to couple the state factory to the decision
+	// variable type.
+	static class MyStateFactory extends MATSimStateFactoryImpl<CompositeDecisionVariable, MATSimState>
 			implements AfterMobsimListener {
 
 		@Inject
@@ -109,7 +120,7 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 		controler.run();
 	}
 
-	// @Test
+	@Test
 	public void test2() {
 
 		Config config = ConfigUtils.loadConfig(IOUtils.newUrl(EQUIL_DIR, "config.xml"));
@@ -166,14 +177,6 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 		objFct.add(dptObjFct, 1.0);
 		// objFct.add(arrObjFct, 1.0);
 
-		// DECISION VARIABLE RANDOMIZER
-
-		int maxNumberOfVariedElements = 2; // work open and close
-		double initialSearchRange_s = 600;
-		double searchStageExponent = 0;
-		DecisionVariableRandomizer<OpeningTimes> randomizer = new OpeningTimesRandomizer(maxNumberOfVariedElements,
-				initialSearchRange_s, searchStageExponent);
-
 		// STATE FACTORY
 
 		MyStateFactory stateFactory = new MyStateFactory();
@@ -181,7 +184,8 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 		// WIRE EVERYTHING TOGETHER
 
 		Scenario scenario = ScenarioUtils.loadScenario(config);
-		MATSimOpdytsRunner<OpeningTimes, MATSimState> runner = new MATSimOpdytsRunner<>(scenario, stateFactory);
+		MATSimOpdytsRunner<CompositeDecisionVariable, MATSimState> runner = new MATSimOpdytsRunner<>(scenario,
+				stateFactory);
 		runner.addOverridingModule(new AbstractModule() {
 			@Override
 			public void install() {
@@ -190,6 +194,33 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 			}
 		});
 		runner.setConvergenceCriterion(new AR1ConvergenceCriterion(2.5));
-		runner.run(randomizer, new OpeningTimes(config), objFct);
+
+		// >>>>>>>>>> TODO SPEC OF COMPOSITE (TIME) DECISION VARIABLES >>>>>>>>>>
+
+		CompositeDecisionVariableAndRandomizerBuilder builder = new CompositeDecisionVariableAndRandomizerBuilder();
+		double min_s = 0.0;
+		double max_s = Units.S_PER_D;
+		double deltaTime_s = 15 * 60;
+		for (ActivityParams actParams : config.planCalcScore().getActivityParams()) {
+			if (!Time.isUndefinedTime(actParams.getOpeningTime())) {
+				builder.add(new OpeningTime(config, actParams.getActivityType(), actParams.getOpeningTime()),
+						new ScalarRandomizer<OpeningTime>(min_s, max_s, deltaTime_s, 0.0));
+			}
+			if (!Time.isUndefinedTime(actParams.getClosingTime())) {
+				builder.add(new ClosingTime(config, actParams.getActivityType(), actParams.getClosingTime()),
+						new ScalarRandomizer<ClosingTime>(min_s, max_s, deltaTime_s, 0.0));
+			}
+			if (!Time.isUndefinedTime(actParams.getTypicalDuration())) {
+				builder.add(new TypicalDuration(config, actParams.getActivityType(), actParams.getTypicalDuration()),
+						new ScalarRandomizer<TypicalDuration>(min_s, max_s, deltaTime_s, 0.0));
+			}
+		}
+		CompositeDecisionVariable initialDecisionVariable = builder.buildDecisionVariable();
+
+		// <<<<<<<<<< TODO SPEC OF COMPOSITE (TIME) DECISION VARIABLES <<<<<<<<<<
+
+		DecisionVariableRandomizer<CompositeDecisionVariable> randomizer = new OneAtATimeRandomizer();
+
+		runner.run(randomizer, initialDecisionVariable, objFct);
 	}
 }
