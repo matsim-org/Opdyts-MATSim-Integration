@@ -161,6 +161,7 @@ public class AR1ConvergenceCriterion implements ConvergenceCriterion {
 		final int maxBinSize = data.length / minBinCnt;
 		final int minBinSize = Math.max(1, (int) Math.round(0.1 * maxBinSize));
 
+		// The smaller the bins, the better.
 		for (int binSize = minBinSize; binSize <= maxBinSize; binSize++) {
 
 			final int maxBinCnt = data.length / binSize;
@@ -169,6 +170,7 @@ public class AR1ConvergenceCriterion implements ConvergenceCriterion {
 				allBinData[bin] = this.binAvg(data, bin, binSize);
 			}
 
+			// The more bins, the better.
 			for (int usedBinCnt = maxBinCnt; usedBinCnt >= minBinCnt; usedBinCnt--) {
 
 				final double[] usedBinData = new double[usedBinCnt];
@@ -237,56 +239,6 @@ public class AR1ConvergenceCriterion implements ConvergenceCriterion {
 
 		} else {
 			return new ConvergenceCriterionResult(false, null, null, null, null, null, null);
-		}
-	}
-
-	// -------------------- TESTING --------------------
-
-	static Random rnd = new Random();
-
-	static double systematicData(int k) {
-		final double max = 30.0;
-		return Math.min(k, max);
-	}
-
-	static double nextNoiseData(double oldNoiseData) {
-		final double noiseSigma = 5.0;
-		final double noiseInertia = 0.5;
-		return noiseInertia * oldNoiseData + (1.0 - noiseInertia) * noiseSigma * rnd.nextGaussian();
-	}
-
-	public static void main(String[] args) {
-
-		double e = 0;
-		for (int k = 0; k < 1000; k++) {
-			e = nextNoiseData(e);
-		}
-
-		AR1ConvergenceCriterion crit = new AR1ConvergenceCriterion(0.2);
-		List<Double> data = new LinkedList<>();
-		List<Double> noise = new LinkedList<>();
-		List<Double> trend = new LinkedList<>();
-		final int maxK = 1000 * 1000;
-		for (int k = 0; !crit.getConverged() && k < maxK; k++) {
-			final double mean = systematicData(k);
-			e = nextNoiseData(e);
-			data.add(mean + e);
-			noise.add(e);
-			trend.add(mean);
-			crit.process(data);
-		}
-
-		System.out.println("data\tnoise\ttrend\tlower\tmean\tupper");
-		for (int k = 0; k < data.size(); k++) {
-			System.out.print(data.get(k) + "\t");
-			System.out.print(noise.get(k) + "\t");
-			System.out.print(trend.get(k) + "\t");
-			if (crit.getConverged() && k >= crit.getConvergedSinceIteration()) {
-				System.out.print(crit.getConvergedMean() - 2.0 * crit.getConvergedMeanStddev() + "\t");
-				System.out.print(crit.getConvergedMean() + "\t");
-				System.out.print(crit.getConvergedMean() + 2.0 * crit.getConvergedMeanStddev());
-			}
-			System.out.println();
 		}
 	}
 }
