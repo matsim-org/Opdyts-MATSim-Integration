@@ -23,6 +23,8 @@ import floetteroed.utilities.TimeDiscretization;
 import floetteroed.utilities.math.MathHelpers;
 
 /**
+ * TODO This should be moved to some utilities package. Not specific to
+ * calibration.
  *
  * @author Gunnar Flötteröd
  *

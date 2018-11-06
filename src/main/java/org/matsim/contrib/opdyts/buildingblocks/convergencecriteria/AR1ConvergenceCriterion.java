@@ -20,9 +20,7 @@
 package org.matsim.contrib.opdyts.buildingblocks.convergencecriteria;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
@@ -39,8 +37,8 @@ import floetteroed.utilities.math.Vector;
  * Q(k + 1) = a * Q(k) + b
  * <p>
  * Varies the time (i.e. iteration) bin size of the model as well as the number
- * of iterations over which convergence is tested until both both model
- * parameters a and b are statistically insignificant.
+ * of iterations over which convergence is tested and looks for a configuration
+ * where both model parameters a and b are statistically insignificant.
  * <p>
  * <ul>
  * <li>a being insignificant indicates the absence of serial correlation across
