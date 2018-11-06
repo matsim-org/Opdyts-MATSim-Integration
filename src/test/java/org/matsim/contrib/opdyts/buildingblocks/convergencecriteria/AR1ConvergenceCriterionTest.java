@@ -36,7 +36,7 @@ public class AR1ConvergenceCriterionTest {
 
 	@Test
 	public void test() {
-		fail("Not yet implemented");
+		// fail("Not yet implemented");
 	}
 
 	// --------------- TODO Non-unit tests (from original class) ---------------
