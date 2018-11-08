@@ -37,7 +37,7 @@ public class LinkEntryCounter implements LinkEnterEventHandler {
 
 	// -------------------- MEMBERS --------------------
 
-	private final List<Counter> counters = new ArrayList<Counter>(1);
+	private final List<Count> counters = new ArrayList<Count>(1);
 
 	private Filter<Id<Vehicle>> vehicleFilter = new Filter<Id<Vehicle>>() {
 		@Override
@@ -78,7 +78,7 @@ public class LinkEntryCounter implements LinkEnterEventHandler {
 
 	@Override
 	public void reset(final int iteration) {
-		for (Counter counter : this.counters) {
+		for (Count counter : this.counters) {
 			counter.resetData();
 		}
 	}
@@ -86,7 +86,7 @@ public class LinkEntryCounter implements LinkEnterEventHandler {
 	@Override
 	public void handleEvent(final LinkEnterEvent event) {
 		if (this.linkFilter.test(event.getLinkId()) && this.vehicleFilter.test(event.getVehicleId())) {
-			for (Counter trajectoryCounter : this.counters) {
+			for (Count trajectoryCounter : this.counters) {
 				trajectoryCounter.inc(event.getTime());
 			}
 		}

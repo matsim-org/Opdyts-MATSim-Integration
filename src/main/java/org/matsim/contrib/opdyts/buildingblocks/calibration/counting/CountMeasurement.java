@@ -21,7 +21,6 @@ package org.matsim.contrib.opdyts.buildingblocks.calibration.counting;
 
 import org.matsim.contrib.opdyts.buildingblocks.calibration.DiscretizationChanger;
 import org.matsim.contrib.opdyts.buildingblocks.calibration.TrajectoryDataUtils;
-import org.matsim.contrib.opdyts.buildingblocks.calibration.DiscretizationChanger.DataType;
 
 import floetteroed.utilities.TimeDiscretization;
 
