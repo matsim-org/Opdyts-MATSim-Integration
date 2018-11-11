@@ -19,32 +19,35 @@
  */
 package org.matsim.contrib.opdyts.buildingblocks.calibration.counting;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import org.matsim.contrib.opdyts.microstate.MATSimState;
+
+import floetteroed.opdyts.ObjectiveFunction;
 
 /**
  *
  * @author Gunnar Flötteröd
  *
  */
-public class SetBasedFilter<T> implements Filter<T> {
+public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements ObjectiveFunction<MATSimState> {
 
-	private final Set<T> acceptedIds = new LinkedHashSet<>();
+	private final double[] realData;
 
-	public SetBasedFilter() {
-	}
+	private final LinkEntryCounter simulationCounter;
 
-	public SetBasedFilter(final T acceptedId) {
-		this.addAccepted(acceptedId);
-	}
-
-	public void addAccepted(final T acceptedId) {
-		this.acceptedIds.add(acceptedId);
+	public AbsoluteLinkEntryCountDeviationObjectiveFunction(final double[] realData,
+			final LinkEntryCounter simulationCounter) {
+		this.realData = realData;
+		this.simulationCounter = simulationCounter;
 	}
 
 	@Override
-	public boolean test(T object) {
-		return this.acceptedIds.contains(object);
+	public double value(final MATSimState state) {
+		final int[] simData = this.simulationCounter.getData();
+		final double simulationFlowUpscale = 1.0 / this.simulationCounter.getSimulatedFlowFactor();
+		double result = 0;
+		for (int i = 0; i < realData.length; i++) {
+			result += Math.abs(this.realData[i] - simulationFlowUpscale * simData[i]);
+		}		
+		return result;
 	}
-
 }

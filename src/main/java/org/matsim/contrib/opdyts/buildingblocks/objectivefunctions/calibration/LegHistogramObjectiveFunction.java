@@ -23,8 +23,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.matsim.analysis.LegHistogram;
 import org.matsim.contrib.opdyts.buildingblocks.objectivefunctions.utils.NonnegativeTimeSeriesObjectiveFunction;
 import org.matsim.contrib.opdyts.microstate.MATSimState;
+import org.matsim.core.controler.AbstractModule;
+import org.matsim.core.controler.events.AfterMobsimEvent;
+import org.matsim.core.controler.listener.AfterMobsimListener;
+
+import com.google.inject.Inject;
 
 /**
  *
@@ -61,9 +67,43 @@ public class LegHistogramObjectiveFunction extends NonnegativeTimeSeriesObjectiv
 		return new LegHistogramObjectiveFunction(DepartureArrivalType.ARRIVAL, mode, realData);
 	}
 
+	// >>>>> TODO NEW, UNTESTED >>>>>
+
+	private LegHistogramObjectiveFunction.StateComponent legHistogramData;
+
+	private AfterMobsimListener myListener = new AfterMobsimListener() {
+
+		@Inject
+		private LegHistogram legHist;
+
+		@Override
+		public void notifyAfterMobsim(final AfterMobsimEvent event) {
+			legHistogramData = new LegHistogramObjectiveFunction.StateComponent();
+			for (String mode : this.legHist.getLegModes()) {
+				legHistogramData.mode2departureData.put(mode, this.legHist.getDepartures(mode));
+				legHistogramData.mode2arrivalData.put(mode, this.legHist.getArrivals(mode));
+			}
+		}
+	};
+
+	@Override
+	public AbstractModule newAbstractModule() {
+		return new AbstractModule() {
+			@Override
+			public void install() {
+				this.addControlerListenerBinding().toInstance(myListener);
+			}			
+		};
+	}
+
+	// <<<<< TODO NEW, UNTESTED <<<<<
+
 	@Override
 	public double[] simData(final MATSimState state) {
-		final StateComponent histogramData = state.getComponent(StateComponent.class);
+		// final StateComponent histogramData =
+		// state.getComponent(StateComponent.class);
+		final StateComponent histogramData = this.legHistogramData;
+
 		final double[] simData = new double[histogramData.mode2departureData.values().iterator().next().length];
 		for (String legMode : this.legModes) {
 			final int[] simDataPerMode;

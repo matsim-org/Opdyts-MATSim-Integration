@@ -19,15 +19,15 @@
  */
 package org.matsim.contrib.opdyts.buildingblocks.objectivefunctions.utils;
 
-import floetteroed.opdyts.ObjectiveFunction;
-import floetteroed.opdyts.SimulatorState;
+import org.matsim.contrib.opdyts.microstate.MATSimState;
+import org.matsim.contrib.opdyts.objectivefunction.MATSimObjectiveFunction;
 
 /**
  *
  * @author Gunnar Flötteröd
  *
  */
-public abstract class NonnegativeTimeSeriesObjectiveFunction<X extends SimulatorState> implements ObjectiveFunction<X> {
+public abstract class NonnegativeTimeSeriesObjectiveFunction<X extends MATSimState> implements MATSimObjectiveFunction<X> {
 
 	// ---------------------- CONSTANTS ----------------------
 

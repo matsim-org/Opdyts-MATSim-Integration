@@ -7,15 +7,15 @@ import java.util.Set;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.opdyts.macrostate.DifferentiatedLinkOccupancyAnalyzer;
 import org.matsim.contrib.opdyts.macrostate.SimulationMacroStateAnalyzer;
+import org.matsim.contrib.opdyts.microstate.MATSimState;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactory;
+import org.matsim.contrib.opdyts.objectivefunction.MATSimObjectiveFunction;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.gbl.MatsimRandom;
 
 import floetteroed.opdyts.DecisionVariable;
 import floetteroed.opdyts.DecisionVariableRandomizer;
-import floetteroed.opdyts.ObjectiveFunction;
-import floetteroed.opdyts.SimulatorState;
 import floetteroed.opdyts.convergencecriteria.ConvergenceCriterion;
 import floetteroed.opdyts.convergencecriteria.FixedIterationNumberConvergenceCriterion;
 import floetteroed.opdyts.searchalgorithms.RandomSearch;
@@ -38,7 +38,7 @@ import floetteroed.utilities.TimeDiscretization;
  * @author Gunnar Flötteröd
  *
  */
-public class MATSimOpdytsRunner<U extends DecisionVariable, X extends SimulatorState> {
+public class MATSimOpdytsRunner<U extends DecisionVariable, X extends MATSimState> {
 
 	// -------------------- CONSTANTS --------------------
 
@@ -126,7 +126,7 @@ public class MATSimOpdytsRunner<U extends DecisionVariable, X extends SimulatorS
 	// -------------------- RUN --------------------
 
 	public void run(final DecisionVariableRandomizer<U> randomizer, final U initialDecisionVariable,
-			final ObjectiveFunction<X> objectiveFunction) {
+			final MATSimObjectiveFunction<X> objectiveFunction) {
 
 		final RandomSearchBuilder<U, X> builder = new RandomSearchBuilder<>();
 		builder.setConvergenceCriterion(this.convergenceCriterion).setDecisionVariableRandomizer(randomizer)
@@ -137,11 +137,15 @@ public class MATSimOpdytsRunner<U extends DecisionVariable, X extends SimulatorS
 				.setSimulator(this.matsimSimulationWrapper);
 		final RandomSearch<U, X> randomSearch = builder.build();
 
+		// TODO NEW
+		this.matsimSimulationWrapper.addOverridingModule(objectiveFunction.newAbstractModule());
+		
 		this.matsimSimulationWrapper.addOverridingModule(new AbstractModule() {
 			@Override
 			public void install() {
 				this.binder().requestInjection(randomizer);
-				this.binder().requestInjection(objectiveFunction);
+				this.binder().requestInjection(objectiveFunction); // TODO rather let the objective function modules
+																	// take care of this?
 				this.binder().requestInjection(convergenceCriterion);
 			}
 		});

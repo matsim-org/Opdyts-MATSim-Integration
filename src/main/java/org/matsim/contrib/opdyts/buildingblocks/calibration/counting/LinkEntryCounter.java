@@ -19,13 +19,11 @@
  */
 package org.matsim.contrib.opdyts.buildingblocks.calibration.counting;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.events.LinkEnterEvent;
 import org.matsim.api.core.v01.events.handler.LinkEnterEventHandler;
 import org.matsim.api.core.v01.network.Link;
+import org.matsim.core.config.Config;
 import org.matsim.vehicles.Vehicle;
 
 /**
@@ -37,58 +35,44 @@ public class LinkEntryCounter implements LinkEnterEventHandler {
 
 	// -------------------- MEMBERS --------------------
 
-	private final List<Count> counters = new ArrayList<Count>(1);
+	private final Config config;
 
-	private Filter<Id<Vehicle>> vehicleFilter = new Filter<Id<Vehicle>>() {
-		@Override
-		public boolean test(Id<Vehicle> vehicleId) {
-			return true;
-		}
-	};
+	private final Counter counter;
 
-	private Filter<Id<Link>> linkFilter = null;
+	private final Filter<Id<Vehicle>> vehicleFilter;
+
+	private final Filter<Id<Link>> linkFilter;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public LinkEntryCounter(final Filter<Id<Link>> linkFilter) {
-		this.setLinkFilter(linkFilter);
+	public LinkEntryCounter(final Config config, final CountMeasurementSpecification specification) {
+		this.config = config;
+		this.counter = new Counter(specification.getTimeDiscretization());
+		this.vehicleFilter = specification.getVehicleFilter();
+		this.linkFilter = specification.getLinkFilter();
 	}
 
-	public LinkEntryCounter(final Id<Link> linkId) {
-		this(new SetBasedFilter<>(linkId));
+	// -------------------- CONTENT ACCESS --------------------
+
+	public int[] getData() {
+		return this.counter.getData();
 	}
 
-	// -------------------- CONFIGURATION --------------------
-
-	public void setLinkFilter(final Filter<Id<Link>> linkFilter) {
-		if (linkFilter == null) {
-			throw new RuntimeException("Link filter must not be null.");
-		}
-		this.linkFilter = linkFilter;
-	}
-
-	public void setVehicleFilter(final Filter<Id<Vehicle>> vehicleFilter) {
-		if (vehicleFilter == null) {
-			throw new RuntimeException("Vehicle filter must not be null.");
-		}
-		this.vehicleFilter = vehicleFilter;
+	public double getSimulatedFlowFactor() {
+		return this.config.qsim().getFlowCapFactor();
 	}
 
 	// --------------- IMPLEMENTATION OF LinkEnterEventHandler ---------------
 
 	@Override
 	public void reset(final int iteration) {
-		for (Count counter : this.counters) {
-			counter.resetData();
-		}
+		this.counter.resetData();
 	}
 
 	@Override
 	public void handleEvent(final LinkEnterEvent event) {
 		if (this.linkFilter.test(event.getLinkId()) && this.vehicleFilter.test(event.getVehicleId())) {
-			for (Count trajectoryCounter : this.counters) {
-				trajectoryCounter.inc(event.getTime());
-			}
+			this.counter.inc(event.getTime());
 		}
 	}
 }

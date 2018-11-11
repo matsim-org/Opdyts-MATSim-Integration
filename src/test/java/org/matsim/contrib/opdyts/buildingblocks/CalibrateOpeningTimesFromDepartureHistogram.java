@@ -25,8 +25,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.Rule;
-import org.junit.Test;
-import org.matsim.analysis.LegHistogram;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.contrib.opdyts.MATSimOpdytsRunner;
 import org.matsim.contrib.opdyts.OpdytsConfigGroup;
@@ -39,10 +37,11 @@ import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites.Com
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites.OneAtATimeRandomizer;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.scalar.ScalarRandomizer;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.utils.EveryIterationScoringParameters;
-import org.matsim.contrib.opdyts.buildingblocks.objectivefunctions.WeightedSumObjectiveFunction;
 import org.matsim.contrib.opdyts.buildingblocks.objectivefunctions.calibration.LegHistogramObjectiveFunction;
 import org.matsim.contrib.opdyts.microstate.MATSimState;
 import org.matsim.contrib.opdyts.microstate.MATSimStateFactoryImpl;
+import org.matsim.contrib.opdyts.objectivefunction.MATSimObjectiveFunction;
+import org.matsim.contrib.opdyts.objectivefunction.MATSimObjectiveFunctionSum;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup.ActivityParams;
@@ -50,8 +49,6 @@ import org.matsim.core.config.groups.StrategyConfigGroup.StrategySettings;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting;
-import org.matsim.core.controler.events.AfterMobsimEvent;
-import org.matsim.core.controler.listener.AfterMobsimListener;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.core.scoring.functions.ScoringParametersForPerson;
 import org.matsim.core.utils.io.IOUtils;
@@ -59,10 +56,7 @@ import org.matsim.core.utils.misc.Time;
 import org.matsim.examples.ExamplesUtils;
 import org.matsim.testcases.MatsimTestUtils;
 
-import com.google.inject.Inject;
-
 import floetteroed.opdyts.DecisionVariableRandomizer;
-import floetteroed.opdyts.ObjectiveFunction;
 import floetteroed.utilities.Units;
 
 /**
@@ -76,31 +70,6 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 	public MatsimTestUtils utils = new MatsimTestUtils();
 
 	private static URL EQUIL_DIR = ExamplesUtils.getTestScenarioURL("equil");
-
-	// TODO It may be a rather bad idea to couple the state factory to the decision
-	// variable type.
-	static class MyStateFactory extends MATSimStateFactoryImpl<CompositeDecisionVariable, MATSimState>
-			implements AfterMobsimListener {
-
-		@Inject
-		private LegHistogram legHist;
-
-		private LegHistogramObjectiveFunction.StateComponent legHistogramData = null;
-
-		@Override
-		public void notifyAfterMobsim(final AfterMobsimEvent event) {
-			this.legHistogramData = new LegHistogramObjectiveFunction.StateComponent();
-			for (String mode : this.legHist.getLegModes()) {
-				this.legHistogramData.mode2departureData.put(mode, this.legHist.getDepartures(mode));
-				this.legHistogramData.mode2arrivalData.put(mode, this.legHist.getArrivals(mode));
-			}
-		}
-
-		@Override
-		protected void addComponents(final MATSimState state) {
-			state.putComponent(LegHistogramObjectiveFunction.StateComponent.class, this.legHistogramData);
-		}
-	}
 
 	public void test() {
 
@@ -163,7 +132,7 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 		// Everybody departs at 5 from work. Bin size 300 sec -> bin nr = 5 * 3600 / 300
 		// = 60
 		realDepartures[60] = 100;
-		ObjectiveFunction<MATSimState> dptObjFct = LegHistogramObjectiveFunction.newDepartures(modes, realDepartures);
+		MATSimObjectiveFunction<MATSimState> dptObjFct = LegHistogramObjectiveFunction.newDepartures(modes, realDepartures);
 
 		// double[] realArrivals = new double[362];
 		// // Everybody arrives one bin later
@@ -172,24 +141,21 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 		// LegHistogramObjectiveFunction.newDepartures(modes,
 		// realArrivals);
 
-		WeightedSumObjectiveFunction<MATSimState> objFct = new WeightedSumObjectiveFunction<>();
+		MATSimObjectiveFunctionSum<MATSimState> objFct = new MATSimObjectiveFunctionSum<>();
 		objFct.add(dptObjFct, 1.0);
 		// objFct.add(arrObjFct, 1.0);
 
-		// STATE FACTORY
-
-		MyStateFactory stateFactory = new MyStateFactory();
 
 		// WIRE EVERYTHING TOGETHER
 
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 		MATSimOpdytsRunner<CompositeDecisionVariable, MATSimState> runner = new MATSimOpdytsRunner<>(scenario,
-				stateFactory);
+				new MATSimStateFactoryImpl<>());
 		runner.addOverridingModule(new AbstractModule() {
 			@Override
 			public void install() {
 				bind(ScoringParametersForPerson.class).to(EveryIterationScoringParameters.class);
-				this.addControlerListenerBinding().toInstance(stateFactory);
+				// this.addControlerListenerBinding().toInstance(stateFactory);
 			}
 		});
 		runner.setConvergenceCriterion(new AR1ConvergenceCriterion(2.5));

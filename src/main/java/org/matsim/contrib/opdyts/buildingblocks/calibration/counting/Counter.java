@@ -26,7 +26,7 @@ import floetteroed.utilities.TimeDiscretization;
  * @author Gunnar Flötteröd
  *
  */
-public class Count {
+public class Counter {
 
 	private final TimeDiscretization timeDiscr;
 
@@ -36,7 +36,7 @@ public class Count {
 
 	private int tooLargeCnt = 0;
 
-	public Count(final TimeDiscretization timeDiscr) {
+	public Counter(final TimeDiscretization timeDiscr) {
 		this.timeDiscr = timeDiscr;
 		this.resetData();
 	}

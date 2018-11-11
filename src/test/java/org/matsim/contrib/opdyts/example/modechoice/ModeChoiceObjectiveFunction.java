@@ -39,6 +39,7 @@ import org.matsim.api.core.v01.population.Plan;
 import org.matsim.contrib.analysis.kai.DataMap;
 import org.matsim.contrib.analysis.kai.Databins;
 import org.matsim.contrib.opdyts.microstate.MATSimState;
+import org.matsim.contrib.opdyts.objectivefunction.MATSimObjectiveFunction;
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup;
 import org.matsim.core.gbl.Gbl;
 import org.matsim.core.router.MainModeIdentifier;
@@ -46,14 +47,12 @@ import org.matsim.core.router.TripRouter;
 import org.matsim.core.router.TripStructureUtils;
 import org.matsim.core.utils.geometry.CoordUtils;
 
-import floetteroed.opdyts.ObjectiveFunction;
-
 /**
  *
  * @author Kai Nagel based on Gunnar Flötteröd
  *
  */
-public class ModeChoiceObjectiveFunction implements ObjectiveFunction<MATSimState> {
+public class ModeChoiceObjectiveFunction implements MATSimObjectiveFunction<MATSimState> {
 
     private static final Logger LOGGER = Logger.getLogger(ModeChoiceObjectiveFunction.class);
 

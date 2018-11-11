@@ -130,27 +130,27 @@ public class MATSimState implements SimulatorState {
 		}
 	}
 
-	// -------------------- BOOK-KEEPING OF DATA CONTAINERS --------------------
-
-	/*
-	 * Not sure if this is the right way to do this; the purpose of this is to give
-	 * instances of ObjectiveFunction access to supplementary simulation state
-	 * information of arbitrary type. See also MATSimStateFactoryImpl. Gunnar,
-	 * 2018-10-08.
-	 * 
-	 * TODO Use TypsafeMap.
-	 */
-
-	private final Map<Class<?>, Object> class2component = new LinkedHashMap<Class<?>, Object>();
-
-	public <C> void putComponent(final Class<C> clazz, final C component) {
-		if (component == null) {
-			throw new RuntimeException("refuse to add a null component");
-		}
-		this.class2component.put(clazz, component);
-	}
-
-	public <C> C getComponent(final Class<C> clazz) {
-		return clazz.cast(this.class2component.get(clazz));
-	}
+//	// -------------------- BOOK-KEEPING OF DATA CONTAINERS --------------------
+//
+//	/*
+//	 * Not sure if this is the right way to do this; the purpose of this is to give
+//	 * instances of ObjectiveFunction access to supplementary simulation state
+//	 * information of arbitrary type. See also MATSimStateFactoryImpl. Gunnar,
+//	 * 2018-10-08.
+//	 * 
+//	 * TODO Use TypsafeMap.
+//	 */
+//
+//	private final Map<Class<?>, Object> class2component = new LinkedHashMap<Class<?>, Object>();
+//
+//	public <C> void putComponent(final Class<C> clazz, final C component) {
+//		if (component == null) {
+//			throw new RuntimeException("refuse to add a null component");
+//		}
+//		this.class2component.put(clazz, component);
+//	}
+//
+//	public <C> C getComponent(final Class<C> clazz) {
+//		return clazz.cast(this.class2component.get(clazz));
+//	}
 }
