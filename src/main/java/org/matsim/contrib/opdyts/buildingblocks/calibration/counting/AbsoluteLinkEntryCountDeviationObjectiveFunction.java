@@ -62,12 +62,12 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements Objecti
 		result.append("TIMES: " + this.getSpecification().getTimeDiscretization() + "\n");
 		result.append("real: ");
 		for (double val : this.realData) {
-			result.append(val);
+			result.append("\t" + val);
 		}
 		result.append("\n");
-		result.append("simu:");
+		result.append("simu: ");
 		for (int val : this.simulationCounter.getData()) {
-			result.append(val / this.simulationCounter.getMATSimsFlowCapFactor());
+			result.append("\t" + val / this.simulationCounter.getMATSimsFlowCapFactor());
 		}
 		result.append("\n");
 		return result.toString();
