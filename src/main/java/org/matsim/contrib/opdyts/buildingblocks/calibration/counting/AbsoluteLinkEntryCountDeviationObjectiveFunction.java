@@ -43,7 +43,7 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements Objecti
 	public CountMeasurementSpecification getSpecification() {
 		return this.simulationCounter.getSpecification();
 	}
-	
+
 	@Override
 	public double value(final MATSimState state) {
 		final int[] simData = this.simulationCounter.getData();
@@ -53,5 +53,23 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements Objecti
 			result += Math.abs(this.realData[i] - simulationFlowUpscale * simData[i]);
 		}
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuffer result = new StringBuffer();
+		result.append("LINKS: " + this.getSpecification().getLinks() + "\n");
+		result.append("TIMES: " + this.getSpecification().getTimeDiscretization() + "\n");
+		result.append("real: ");
+		for (double val : this.realData) {
+			result.append(val);
+		}
+		result.append("\n");
+		result.append("simu:");
+		for (int val : this.simulationCounter.getData()) {
+			result.append(val / this.simulationCounter.getMATSimsFlowCapFactor());
+		}
+		result.append("\n");
+		return result.toString();
 	}
 }
