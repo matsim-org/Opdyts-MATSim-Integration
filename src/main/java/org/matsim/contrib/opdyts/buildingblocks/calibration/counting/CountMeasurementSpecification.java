@@ -22,6 +22,7 @@ package org.matsim.contrib.opdyts.buildingblocks.calibration.counting;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Link;
@@ -37,41 +38,34 @@ import floetteroed.utilities.TimeDiscretization;
 public class CountMeasurementSpecification {
 
 	// -------------------- CONSTANTS --------------------
-
-	private final Id<Link> linkId;
-
 	private final TimeDiscretization timeDiscr;
 
 	private final Filter<Id<Vehicle>> vehicleFilter;
 
-	private final Filter<Id<Link>> linkFilter;
-
+	private final Set<Id<Link>> links;
+	
 	private final List<Object> featureList;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public CountMeasurementSpecification(final Id<Link> linkId, final TimeDiscretization timeDiscr,
-			final Filter<Id<Vehicle>> vehicleFilter) {
+	public CountMeasurementSpecification(final TimeDiscretization timeDiscr,
+			final Filter<Id<Vehicle>> vehicleFilter,
+			final Set<Id<Link>> links) {
 
-		this.linkId = linkId;
 		this.timeDiscr = timeDiscr;
 		this.vehicleFilter = vehicleFilter;
-		this.linkFilter = Filter.newSingleObjectFilter(linkId);
+		this.links = links;
 
 		final List<Object> featureList = new ArrayList<>();
-		featureList.add(linkId);
 		featureList.add(new Integer(timeDiscr.getStartTime_s()));
 		featureList.add(new Integer(timeDiscr.getBinSize_s()));
 		featureList.add(new Integer(timeDiscr.getBinCnt()));
 		featureList.add(vehicleFilter);
+		featureList.add(links);
 		this.featureList = Collections.unmodifiableList(featureList);
 	}
 
 	// -------------------- GETTERS --------------------
-
-	public Id<Link> getLinkId() {
-		return this.linkId;
-	}
 
 	public TimeDiscretization getTimeDiscretization() {
 		return this.timeDiscr;
@@ -81,8 +75,8 @@ public class CountMeasurementSpecification {
 		return this.vehicleFilter;
 	}
 
-	public Filter<Id<Link>> getLinkFilter() {
-		return this.linkFilter;
+	public Set<Id<Link>> getLinks() {
+		return this.links;
 	}
 
 	// -------------------- OVERRIDING OF Object --------------------

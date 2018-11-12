@@ -19,12 +19,9 @@
  */
 package org.matsim.contrib.opdyts.buildingblocks.calibration.counting;
 
-import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.events.LinkEnterEvent;
 import org.matsim.api.core.v01.events.handler.LinkEnterEventHandler;
-import org.matsim.api.core.v01.network.Link;
 import org.matsim.core.config.Config;
-import org.matsim.vehicles.Vehicle;
 
 /**
  *
@@ -39,17 +36,14 @@ public class LinkEntryCounter implements LinkEnterEventHandler {
 
 	private final Counter counter;
 
-	private final Filter<Id<Vehicle>> vehicleFilter;
-
-	private final Filter<Id<Link>> linkFilter;
+	private final CountMeasurementSpecification specification;
 
 	// -------------------- CONSTRUCTION --------------------
 
 	public LinkEntryCounter(final Config config, final CountMeasurementSpecification specification) {
 		this.config = config;
 		this.counter = new Counter(specification.getTimeDiscretization());
-		this.vehicleFilter = specification.getVehicleFilter();
-		this.linkFilter = specification.getLinkFilter();
+		this.specification = specification;
 	}
 
 	// -------------------- CONTENT ACCESS --------------------
@@ -62,6 +56,10 @@ public class LinkEntryCounter implements LinkEnterEventHandler {
 		return this.config.qsim().getFlowCapFactor();
 	}
 
+	public CountMeasurementSpecification getSpecification() {
+		return this.specification;
+	}
+
 	// --------------- IMPLEMENTATION OF LinkEnterEventHandler ---------------
 
 	@Override
@@ -71,7 +69,8 @@ public class LinkEntryCounter implements LinkEnterEventHandler {
 
 	@Override
 	public void handleEvent(final LinkEnterEvent event) {
-		if (this.linkFilter.test(event.getLinkId()) && this.vehicleFilter.test(event.getVehicleId())) {
+		if (this.specification.getLinks().contains(event.getLinkId())
+				&& this.specification.getVehicleFilter().test(event.getVehicleId())) {
 			this.counter.inc(event.getTime());
 		}
 	}

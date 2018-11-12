@@ -19,7 +19,9 @@
  */
 package org.matsim.contrib.opdyts.buildingblocks.calibration.counting;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.matsim.core.config.Config;
@@ -40,9 +42,9 @@ public class CountMeasurements {
 
 	// -------------------- MEMBERS --------------------
 
-	private Map<CountMeasurementSpecification, AbstractModule> modules = null;
+	private List<AbstractModule> modules = null;
 
-	private Map<CountMeasurementSpecification, AbsoluteLinkEntryCountDeviationObjectiveFunction> objectiveFunctions = null;
+	private List<AbsoluteLinkEntryCountDeviationObjectiveFunction> objectiveFunctions = null;
 
 	// -------------------- CONSTRUCTION --------------------
 
@@ -59,13 +61,13 @@ public class CountMeasurements {
 	// -------------------- BUILDING --------------------
 
 	public void build() {
-
-		this.modules = new LinkedHashMap<>(this.measSpec2data.size());
-		this.objectiveFunctions = new LinkedHashMap<>(this.measSpec2data.size());
+		
+		this.modules = new ArrayList<>(this.measSpec2data.size());
+		this.objectiveFunctions = new ArrayList<>(this.measSpec2data.size());
 		final Map<CountMeasurementSpecification, LinkEntryCounter> measSpec2linkEntryCounter = new LinkedHashMap<>();
-
+		
 		for (Map.Entry<CountMeasurementSpecification, double[]> entry : this.measSpec2data.entrySet()) {
-			final CountMeasurementSpecification spec = entry.getKey();
+			final CountMeasurementSpecification spec = entry.getKey();			
 
 			final LinkEntryCounter simCounter;
 			if (measSpec2linkEntryCounter.containsKey(spec)) {
@@ -73,26 +75,26 @@ public class CountMeasurements {
 			} else {
 				simCounter = new LinkEntryCounter(this.config, spec);
 				measSpec2linkEntryCounter.put(spec, simCounter);
-				this.modules.put(spec, new AbstractModule() {
+				this.modules.add(new AbstractModule() {
 					@Override
 					public void install() {
 						this.addEventHandlerBinding().toInstance(simCounter);
 					}
 				});
 			}
-
+			
 			final double[] data = entry.getValue();
-			this.objectiveFunctions.put(spec, new AbsoluteLinkEntryCountDeviationObjectiveFunction(data, simCounter));
+			this.objectiveFunctions.add(new AbsoluteLinkEntryCountDeviationObjectiveFunction(data, simCounter));
 		}
 	}
 
 	// -------------------- GETTERS --------------------
 
-	public Map<CountMeasurementSpecification, AbstractModule> getModules() {
+	public List<AbstractModule> getModules() {
 		return this.modules;
 	}
 
-	public Map<CountMeasurementSpecification, AbsoluteLinkEntryCountDeviationObjectiveFunction> getObjectiveFunctions() {
+	public List<AbsoluteLinkEntryCountDeviationObjectiveFunction> getObjectiveFunctions() {
 		return this.objectiveFunctions;
 	}
 
