@@ -61,18 +61,20 @@ public class CountMeasurements {
 	// -------------------- BUILDING --------------------
 
 	public void build() {
-		final Map<CountMeasurementSpecification, LinkEntryCounter> measSpec2counter = new LinkedHashMap<>();
+		
 		this.modules = new ArrayList<>(this.measSpec2data.size());
 		this.objectiveFunctions = new ArrayList<>(this.measSpec2data.size());
+		final Map<CountMeasurementSpecification, LinkEntryCounter> measSpec2linkEntryCounter = new LinkedHashMap<>();
+		
 		for (Map.Entry<CountMeasurementSpecification, double[]> entry : this.measSpec2data.entrySet()) {
-			final CountMeasurementSpecification spec = entry.getKey();
-			final double[] data = entry.getValue();
+			final CountMeasurementSpecification spec = entry.getKey();			
+
 			final LinkEntryCounter simCounter;
-			if (measSpec2counter.containsKey(spec)) {
-				simCounter = measSpec2counter.get(spec);
+			if (measSpec2linkEntryCounter.containsKey(spec)) {
+				simCounter = measSpec2linkEntryCounter.get(spec);
 			} else {
 				simCounter = new LinkEntryCounter(this.config, spec);
-				measSpec2counter.put(spec, simCounter);
+				measSpec2linkEntryCounter.put(spec, simCounter);
 				this.modules.add(new AbstractModule() {
 					@Override
 					public void install() {
@@ -80,9 +82,10 @@ public class CountMeasurements {
 					}
 				});
 			}
+			
+			final double[] data = entry.getValue();
 			this.objectiveFunctions.add(new AbsoluteLinkEntryCountDeviationObjectiveFunction(data, simCounter));
 		}
-
 	}
 
 	// -------------------- GETTERS --------------------
