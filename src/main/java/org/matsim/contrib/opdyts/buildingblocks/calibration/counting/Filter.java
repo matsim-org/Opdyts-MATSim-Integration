@@ -26,7 +26,7 @@ package org.matsim.contrib.opdyts.buildingblocks.calibration.counting;
  */
 public interface Filter<T> {
 
-	public static <T> Filter<T> newAcceptAllFilter(Class<T> clazz) {
+	public static <T> Filter<T> newAcceptAllFilter(final Class<T> clazz) {
 		return new Filter<T>() {
 			@Override
 			public boolean test(T object) {
@@ -35,14 +35,14 @@ public interface Filter<T> {
 		};
 	}
 
-	public static <T> Filter<T> newSingleObjectFilter(final T targetObject) {
-		if (targetObject == null) {
-			throw new RuntimeException("Target object must not be null.");
+	public static <T> Filter<T> newSingleObjectFilter(final T acceptedObject) {
+		if (acceptedObject == null) {
+			throw new RuntimeException("Accepted object must not be null.");
 		}
 		return new Filter<T>() {
 			@Override
 			public boolean test(T object) {
-				return targetObject.equals(object);
+				return acceptedObject.equals(object);
 			}
 		};
 	}

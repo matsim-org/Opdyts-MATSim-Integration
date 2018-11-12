@@ -58,7 +58,7 @@ public class LinkEntryCounter implements LinkEnterEventHandler {
 		return this.counter.getData();
 	}
 
-	public double getSimulatedFlowFactor() {
+	public double getMATSimsFlowCapFactor() {
 		return this.config.qsim().getFlowCapFactor();
 	}
 

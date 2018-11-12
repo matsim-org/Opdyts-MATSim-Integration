@@ -37,22 +37,22 @@ import floetteroed.utilities.TimeDiscretization;
 public class CountMeasurementSpecification {
 
 	// -------------------- CONSTANTS --------------------
-	
+
 	private final Id<Link> linkId;
 
 	private final TimeDiscretization timeDiscr;
-	
+
 	private final Filter<Id<Vehicle>> vehicleFilter;
 
 	private final Filter<Id<Link>> linkFilter;
-	
+
 	private final List<Object> featureList;
 
 	// -------------------- CONSTRUCTION --------------------
-	
+
 	public CountMeasurementSpecification(final Id<Link> linkId, final TimeDiscretization timeDiscr,
 			final Filter<Id<Vehicle>> vehicleFilter) {
-		
+
 		this.linkId = linkId;
 		this.timeDiscr = timeDiscr;
 		this.vehicleFilter = vehicleFilter;
@@ -68,27 +68,27 @@ public class CountMeasurementSpecification {
 	}
 
 	// -------------------- GETTERS --------------------
-	
+
 	public Id<Link> getLinkId() {
 		return this.linkId;
 	}
-	
-	public Filter<Id<Link>> getLinkFilter() {
-		return this.linkFilter;
-	}
-	
+
 	public TimeDiscretization getTimeDiscretization() {
 		return this.timeDiscr;
 	}
-	
+
 	public Filter<Id<Vehicle>> getVehicleFilter() {
 		return this.vehicleFilter;
 	}
-	
+
+	public Filter<Id<Link>> getLinkFilter() {
+		return this.linkFilter;
+	}
+
 	// -------------------- OVERRIDING OF Object --------------------
-	
+
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(final Object other) {
 		if (other instanceof CountMeasurementSpecification) {
 			return this.featureList.equals(((CountMeasurementSpecification) other).featureList);
 		} else {
@@ -100,5 +100,4 @@ public class CountMeasurementSpecification {
 	public int hashCode() {
 		return this.featureList.hashCode();
 	}
-
 }
