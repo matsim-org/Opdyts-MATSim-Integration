@@ -79,6 +79,7 @@ public class CountMeasurements {
 					@Override
 					public void install() {
 						this.addEventHandlerBinding().toInstance(simCounter);
+						this.addControlerListenerBinding().toInstance(simCounter);
 					}
 				});
 			}

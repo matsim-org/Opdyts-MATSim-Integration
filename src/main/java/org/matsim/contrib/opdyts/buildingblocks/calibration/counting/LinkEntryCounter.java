@@ -22,13 +22,15 @@ package org.matsim.contrib.opdyts.buildingblocks.calibration.counting;
 import org.matsim.api.core.v01.events.LinkEnterEvent;
 import org.matsim.api.core.v01.events.handler.LinkEnterEventHandler;
 import org.matsim.core.config.Config;
+import org.matsim.core.controler.events.AfterMobsimEvent;
+import org.matsim.core.controler.listener.AfterMobsimListener;
 
 /**
  *
  * @author Gunnar Flötteröd
  *
  */
-public class LinkEntryCounter implements LinkEnterEventHandler {
+public class LinkEntryCounter implements LinkEnterEventHandler, AfterMobsimListener {
 
 	// -------------------- MEMBERS --------------------
 
@@ -38,26 +40,18 @@ public class LinkEntryCounter implements LinkEnterEventHandler {
 
 	private final CountMeasurementSpecification specification;
 
+	private Integer lastCompletedIteration = null;
+
+	private int[] countsOfLastCompletedIteration = null;
+
+	private Double flowCapFactorOfLastCompletedIteration = null;
+
 	// -------------------- CONSTRUCTION --------------------
 
 	public LinkEntryCounter(final Config config, final CountMeasurementSpecification specification) {
 		this.config = config;
 		this.counter = new Counter(specification.getTimeDiscretization());
 		this.specification = specification;
-	}
-
-	// -------------------- CONTENT ACCESS --------------------
-
-	public int[] getData() {
-		return this.counter.getData();
-	}
-
-	public double getMATSimsFlowCapFactor() {
-		return this.config.qsim().getFlowCapFactor();
-	}
-
-	public CountMeasurementSpecification getSpecification() {
-		return this.specification;
 	}
 
 	// --------------- IMPLEMENTATION OF LinkEnterEventHandler ---------------
@@ -73,5 +67,34 @@ public class LinkEntryCounter implements LinkEnterEventHandler {
 				&& this.specification.getVehicleFilter().test(event.getVehicleId())) {
 			this.counter.inc(event.getTime());
 		}
+	}
+
+	// --------------- IMPLEMENTATION OF AfterMobsimHandler ---------------
+
+	@Override
+	public void notifyAfterMobsim(final AfterMobsimEvent event) {
+		this.lastCompletedIteration = event.getIteration();
+		this.countsOfLastCompletedIteration = new int[this.counter.getData().length];
+		System.arraycopy(this.counter.getData(), 0, this.countsOfLastCompletedIteration, 0,
+				this.counter.getData().length);
+		this.flowCapFactorOfLastCompletedIteration = this.config.qsim().getFlowCapFactor();
+	}
+
+	// -------------------- CONTENT ACCESS --------------------
+
+	public CountMeasurementSpecification getSpecification() {
+		return this.specification;
+	}
+
+	public Integer getLastCompletedIteration() {
+		return this.lastCompletedIteration;
+	}
+
+	public int[] getDataOfLastCompletedIteration() {
+		return this.countsOfLastCompletedIteration;
+	}
+
+	public Double getMATSimsFlowCapFactorOfLastCompletedIteration() {
+		return this.flowCapFactorOfLastCompletedIteration;
 	}
 }

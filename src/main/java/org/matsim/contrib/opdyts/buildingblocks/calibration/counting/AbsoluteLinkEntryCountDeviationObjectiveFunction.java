@@ -46,8 +46,8 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements Objecti
 
 	@Override
 	public double value(final MATSimState state) {
-		final int[] simData = this.simulationCounter.getData();
-		final double simulationFlowUpscale = 1.0 / this.simulationCounter.getMATSimsFlowCapFactor();
+		final int[] simData = this.simulationCounter.getDataOfLastCompletedIteration();
+		final double simulationFlowUpscale = 1.0 / this.simulationCounter.getMATSimsFlowCapFactorOfLastCompletedIteration();
 		double result = 0;
 		for (int i = 0; i < this.realData.length; i++) {
 			result += Math.abs(this.realData[i] - simulationFlowUpscale * simData[i]);
@@ -66,8 +66,8 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements Objecti
 		}
 		result.append("\n");
 		result.append("simu: ");
-		for (int val : this.simulationCounter.getData()) {
-			result.append("\t" + val / this.simulationCounter.getMATSimsFlowCapFactor());
+		for (int val : this.simulationCounter.getDataOfLastCompletedIteration()) {
+			result.append("\t" + val / this.simulationCounter.getMATSimsFlowCapFactorOfLastCompletedIteration());
 		}
 		result.append("\n");
 		return result.toString();
