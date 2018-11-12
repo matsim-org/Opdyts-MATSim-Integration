@@ -40,6 +40,10 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements Objecti
 		this.simulationCounter = simulationCounter;
 	}
 
+	public CountMeasurementSpecification getSpecification() {
+		return this.simulationCounter.getSpecification();
+	}
+	
 	@Override
 	public double value(final MATSimState state) {
 		final int[] simData = this.simulationCounter.getData();
