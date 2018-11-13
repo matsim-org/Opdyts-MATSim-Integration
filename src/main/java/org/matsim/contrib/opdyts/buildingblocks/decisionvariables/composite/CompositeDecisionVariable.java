@@ -17,7 +17,7 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites;
+package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composite;
 
 import java.util.List;
 
@@ -32,17 +32,18 @@ public class CompositeDecisionVariable implements DecisionVariable {
 
 	// -------------------- MEMBERS --------------------
 
-	private final List<SelfRandomizingDecisionVariable<?>> decisionVariables;
+	private final List<SelfRandomizingDecisionVariable<? extends DecisionVariable>> decisionVariables;
 
-	// --------------- CONSTRUCTION OF IDENTIFIABLE INSTANCE ---------------
+	// -------------------- CONSTRUCTION --------------------
 
-	public CompositeDecisionVariable(final List<SelfRandomizingDecisionVariable<?>> decisionVariables) {
+	public CompositeDecisionVariable(
+			final List<SelfRandomizingDecisionVariable<? extends DecisionVariable>> decisionVariables) {
 		this.decisionVariables = decisionVariables;
 	}
 
-	// --------------- IMPLEMENTATION OF DecisionVariable ---------------
+	// -------------------- GETTERS --------------------
 
-	public List<SelfRandomizingDecisionVariable<?>> getDecisionVariables() {
+	public List<SelfRandomizingDecisionVariable<? extends DecisionVariable>> getDecisionVariables() {
 		return this.decisionVariables;
 	}
 

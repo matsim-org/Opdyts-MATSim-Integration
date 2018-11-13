@@ -17,7 +17,7 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites;
+package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composite;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public abstract class CompositeDecisionVariableRandomizer
 	// --------------- IMPLEMENTATION OF DecisionVariableRandomizer ---------------
 
 	@Override
-	public Collection<CompositeDecisionVariable> newRandomVariations(
+	public final Collection<CompositeDecisionVariable> newRandomVariations(
 			final CompositeDecisionVariable compositeDecisionVariable, final int searchIteration) {
 
 		// Obtain a representation of all possible decision variable combinations.
@@ -57,7 +57,7 @@ public abstract class CompositeDecisionVariableRandomizer
 
 	// -------------------- INTERFACE DEFINITION --------------------
 
-	public abstract Collection<List<SelfRandomizingDecisionVariable<?>>> selectDecisionVariableCombinations(
+	protected abstract Collection<List<SelfRandomizingDecisionVariable<?>>> selectDecisionVariableCombinations(
 			List<Collection<SelfRandomizingDecisionVariable<?>>> variations,
 			List<SelfRandomizingDecisionVariable<?>> original);
 

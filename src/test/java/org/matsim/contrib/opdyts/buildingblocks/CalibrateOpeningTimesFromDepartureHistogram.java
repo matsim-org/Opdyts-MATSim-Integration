@@ -32,9 +32,9 @@ import org.matsim.contrib.opdyts.buildingblocks.convergencecriteria.AR1Convergen
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.activitytimes.ClosingTime;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.activitytimes.OpeningTime;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.activitytimes.TypicalDuration;
-import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites.CompositeDecisionVariable;
-import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites.CompositeDecisionVariableAndRandomizerBuilder;
-import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites.OneAtATimeRandomizer;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composite.CompositeDecisionVariable;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composite.CompositeDecisionVariableAndRandomizerBuilder;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composite.OneAtATimeRandomizer;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.scalar.ScalarRandomizer;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.utils.EveryIterationScoringParameters;
 import org.matsim.contrib.opdyts.buildingblocks.objectivefunctions.calibration.LegHistogramObjectiveFunction;
@@ -57,7 +57,6 @@ import org.matsim.examples.ExamplesUtils;
 import org.matsim.testcases.MatsimTestUtils;
 
 import floetteroed.opdyts.DecisionVariableRandomizer;
-import floetteroed.utilities.Units;
 
 /**
  *
@@ -132,7 +131,8 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 		// Everybody departs at 5 from work. Bin size 300 sec -> bin nr = 5 * 3600 / 300
 		// = 60
 		realDepartures[60] = 100;
-		MATSimObjectiveFunction<MATSimState> dptObjFct = LegHistogramObjectiveFunction.newDepartures(modes, realDepartures);
+		MATSimObjectiveFunction<MATSimState> dptObjFct = LegHistogramObjectiveFunction.newDepartures(modes,
+				realDepartures);
 
 		// double[] realArrivals = new double[362];
 		// // Everybody arrives one bin later
@@ -144,7 +144,6 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 		MATSimObjectiveFunctionSum<MATSimState> objFct = new MATSimObjectiveFunctionSum<>();
 		objFct.add(dptObjFct, 1.0);
 		// objFct.add(arrObjFct, 1.0);
-
 
 		// WIRE EVERYTHING TOGETHER
 
@@ -163,21 +162,19 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 		// >>>>>>>>>> TODO SPEC OF COMPOSITE (TIME) DECISION VARIABLES >>>>>>>>>>
 
 		CompositeDecisionVariableAndRandomizerBuilder builder = new CompositeDecisionVariableAndRandomizerBuilder();
-		double min_s = 0.0;
-		double max_s = Units.S_PER_D;
 		double deltaTime_s = 15 * 60;
 		for (ActivityParams actParams : config.planCalcScore().getActivityParams()) {
 			if (!Time.isUndefinedTime(actParams.getOpeningTime())) {
 				builder.add(new OpeningTime(config, actParams.getActivityType(), actParams.getOpeningTime()),
-						new ScalarRandomizer<OpeningTime>(min_s, max_s, deltaTime_s, 0.0));
+						new ScalarRandomizer<OpeningTime>(deltaTime_s, 0.0));
 			}
 			if (!Time.isUndefinedTime(actParams.getClosingTime())) {
 				builder.add(new ClosingTime(config, actParams.getActivityType(), actParams.getClosingTime()),
-						new ScalarRandomizer<ClosingTime>(min_s, max_s, deltaTime_s, 0.0));
+						new ScalarRandomizer<ClosingTime>(deltaTime_s, 0.0));
 			}
 			if (!Time.isUndefinedTime(actParams.getTypicalDuration())) {
 				builder.add(new TypicalDuration(config, actParams.getActivityType(), actParams.getTypicalDuration()),
-						new ScalarRandomizer<TypicalDuration>(min_s, max_s, deltaTime_s, 0.0));
+						new ScalarRandomizer<TypicalDuration>(deltaTime_s, 0.0));
 			}
 		}
 		CompositeDecisionVariable initialDecisionVariable = builder.buildDecisionVariable();

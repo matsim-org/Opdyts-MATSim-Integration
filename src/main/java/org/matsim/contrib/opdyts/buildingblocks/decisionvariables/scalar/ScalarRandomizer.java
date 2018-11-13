@@ -33,39 +33,30 @@ public class ScalarRandomizer<U extends ScalarDecisionVariable<U>> implements De
 
 	// -------------------- CONSTANTS --------------------
 
-	private final double min;
-
-	private final double max;
-
-	private final double initialDelta;
+	private final double initialStepSize;
 
 	private final double searchStageExponent;
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public ScalarRandomizer(final double min, final double max, final double initialDelta,
-			final double searchStageExponent) {
-		this.min = min;
-		this.max = max;
-		this.initialDelta = initialDelta;
+	public ScalarRandomizer(final double initialStepSize, final double searchStageExponent) {
+		this.initialStepSize = initialStepSize;
 		this.searchStageExponent = searchStageExponent;
 	}
 
-	public ScalarRandomizer() {
-		this(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1.0, 0.0);
+	public ScalarRandomizer(final double initialStepSize) {
+		this(initialStepSize, 0.0);
 	}
 
 	// --------------- IMPLEMENTATION OF DecisionVariableRandomizer ---------------
 
 	@Override
 	public Collection<U> newRandomVariations(final U decisionVariable, final int searchStage) {
+		final double stepSize = this.initialStepSize * Math.pow(searchStage, this.searchStageExponent);
 		final U variation1 = decisionVariable.newDeepCopy();
 		final U variation2 = decisionVariable.newDeepCopy();
-		final double delta = this.initialDelta * Math.pow(searchStage, this.searchStageExponent);
-		if ((decisionVariable.getValue() - delta >= this.min) && (decisionVariable.getValue() + delta <= this.max)) {
-			variation1.setValue(decisionVariable.getValue() - delta);
-			variation2.setValue(decisionVariable.getValue() + delta);
-		}
+		variation1.setValue(decisionVariable.getValue() - stepSize);
+		variation2.setValue(decisionVariable.getValue() + stepSize);
 		return Arrays.asList(variation1, variation2);
 	}
 }

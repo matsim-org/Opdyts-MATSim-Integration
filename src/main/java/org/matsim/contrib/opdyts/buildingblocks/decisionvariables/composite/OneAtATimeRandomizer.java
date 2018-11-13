@@ -17,7 +17,7 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites;
+package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composite;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,18 +34,23 @@ import java.util.List;
 public class OneAtATimeRandomizer extends CompositeDecisionVariableRandomizer {
 
 	@Override
-	public Collection<List<SelfRandomizingDecisionVariable<?>>> selectDecisionVariableCombinations(
+	protected Collection<List<SelfRandomizingDecisionVariable<?>>> selectDecisionVariableCombinations(
 			final List<Collection<SelfRandomizingDecisionVariable<?>>> variations,
 			final List<SelfRandomizingDecisionVariable<?>> original) {
 		final Collection<List<SelfRandomizingDecisionVariable<?>>> result = new ArrayList<>();
 		for (int i = 0; i < original.size(); i++) {
-			final List<SelfRandomizingDecisionVariable<?>> variation1 = new ArrayList<>(original);
-			final List<SelfRandomizingDecisionVariable<?>> variation2 = new ArrayList<>(original);
-			final Iterator<SelfRandomizingDecisionVariable<?>> it = variations.get(i).iterator();
-			variation1.set(i, it.next());
-			variation2.set(i, it.next());
-			result.add(variation1);
-			result.add(variation2);
+			if (variations.get(i).size() == 2) {
+				final List<SelfRandomizingDecisionVariable<?>> variation1 = new ArrayList<>(original);
+				final List<SelfRandomizingDecisionVariable<?>> variation2 = new ArrayList<>(original);
+				final Iterator<SelfRandomizingDecisionVariable<?>> it = variations.get(i).iterator();
+				variation1.set(i, it.next());
+				variation2.set(i, it.next());
+				result.add(variation1);
+				result.add(variation2);
+			} else {
+				throw new RuntimeException("A " + SelfRandomizingDecisionVariable.class.getSimpleName()
+						+ " must provide two (symmetric) variations.");
+			}
 		}
 		return result;
 	}

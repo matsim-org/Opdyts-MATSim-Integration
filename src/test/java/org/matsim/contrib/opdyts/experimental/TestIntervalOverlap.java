@@ -17,10 +17,10 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.buildingblocks.calibration;
+package org.matsim.contrib.opdyts.experimental;
 
 import org.junit.Test;
-
+import org.matsim.contrib.opdyts.experimental.DiscretizationChanger;
 import org.junit.Assert;
 
 /**

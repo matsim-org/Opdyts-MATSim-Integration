@@ -17,7 +17,7 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composites;
+package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composite;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,13 +55,15 @@ public class CompositeDecisionVariableAndRandomizerBuilder {
 		return this;
 	}
 
-	public CompositeDecisionVariableAndRandomizerBuilder add(
-			final CompositeDecisionVariable compositeDecisionVariable) {
+	public CompositeDecisionVariableAndRandomizerBuilder add(final CompositeDecisionVariable compositeDecisionVariable) {
 		this.selfRandomizingDecisionVariables.addAll(compositeDecisionVariable.getDecisionVariables());
 		return this;
 	}
 
+	// -------------------- RESULT ACCESS --------------------
+	
 	public CompositeDecisionVariable buildDecisionVariable() {
 		return new CompositeDecisionVariable(this.selfRandomizingDecisionVariables);
 	}
+
 }
