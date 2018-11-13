@@ -30,7 +30,7 @@ import floetteroed.opdyts.DecisionVariableRandomizer;
  * @author Gunnar Flötteröd
  *
  */
-public class CompositeDecisionVariableAndRandomizerBuilder {
+public class CompositeDecisionVariableBuilder {
 
 	// -------------------- MEMBERS --------------------
 
@@ -38,24 +38,24 @@ public class CompositeDecisionVariableAndRandomizerBuilder {
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public CompositeDecisionVariableAndRandomizerBuilder() {
+	public CompositeDecisionVariableBuilder() {
 	}
 
 	// -------------------- BUILDING --------------------
 
-	public CompositeDecisionVariableAndRandomizerBuilder add(
+	public CompositeDecisionVariableBuilder add(
 			final SelfRandomizingDecisionVariable<?> selfRandomizingDecisionVariable) {
 		this.selfRandomizingDecisionVariables.add(selfRandomizingDecisionVariable);
 		return this;
 	}
 
-	public <U extends DecisionVariable> CompositeDecisionVariableAndRandomizerBuilder add(final U decisionVariable,
+	public <U extends DecisionVariable> CompositeDecisionVariableBuilder add(final U decisionVariable,
 			final DecisionVariableRandomizer<U> randomizer) {
 		this.add(new SelfRandomizingDecisionVariable<U>(decisionVariable, randomizer));
 		return this;
 	}
 
-	public CompositeDecisionVariableAndRandomizerBuilder add(final CompositeDecisionVariable compositeDecisionVariable) {
+	public CompositeDecisionVariableBuilder add(final CompositeDecisionVariable compositeDecisionVariable) {
 		this.selfRandomizingDecisionVariables.addAll(compositeDecisionVariable.getDecisionVariables());
 		return this;
 	}

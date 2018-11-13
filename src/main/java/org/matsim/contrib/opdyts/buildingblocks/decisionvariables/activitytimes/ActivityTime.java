@@ -64,12 +64,14 @@ public abstract class ActivityTime<U extends ScalarDecisionVariable<U>> implemen
 		return this.getConfig().planCalcScore().getActivityParams(this.getActivityType());
 	}
 
-	// ---------- PARTIAL IMPLEMENTATION OF RealValuedDecisionVariable ----------
+	// ---------- PARTIAL IMPLEMENTATION OF ScalarDecisionVariable ----------
 
+	@Override
 	public void setValue(double value_s) {
 		this.value_s = value_s;
 	}
 
+	@Override
 	public double getValue() {
 		return this.value_s;
 	}

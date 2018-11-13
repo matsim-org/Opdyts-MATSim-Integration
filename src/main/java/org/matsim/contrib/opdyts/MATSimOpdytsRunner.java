@@ -66,7 +66,7 @@ public class MATSimOpdytsRunner<U extends DecisionVariable, X extends MATSimStat
 				this.opdytsConfig.getBinSize_s(), this.opdytsConfig.getBinCount());
 
 		this.matsimSimulationWrapper = new MATSimSimulationWrapper<>(scenario, stateFactory,
-				opdytsConfig.getEnBlockSimulationIterations());
+				this.opdytsConfig.getEnBlockSimulationIterations());
 		final Set<String> networkModes = new HashSet<>(scenario.getConfig().qsim().getMainModes());
 		if (networkModes.size() > 0) {
 			this.matsimSimulationWrapper

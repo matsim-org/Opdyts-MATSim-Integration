@@ -20,15 +20,14 @@
 package org.matsim.contrib.opdyts.buildingblocks.calibration.counting;
 
 import org.matsim.contrib.opdyts.microstate.MATSimState;
-
-import floetteroed.opdyts.ObjectiveFunction;
+import org.matsim.contrib.opdyts.objectivefunction.MATSimObjectiveFunction;
 
 /**
  *
  * @author Gunnar Flötteröd
  *
  */
-public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements ObjectiveFunction<MATSimState> {
+public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements MATSimObjectiveFunction<MATSimState> {
 
 	private final double[] realData;
 
@@ -47,7 +46,8 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements Objecti
 	@Override
 	public double value(final MATSimState state) {
 		final int[] simData = this.simulationCounter.getDataOfLastCompletedIteration();
-		final double simulationFlowUpscale = 1.0 / this.simulationCounter.getMATSimsFlowCapFactorOfLastCompletedIteration();
+		final double simulationFlowUpscale = 1.0
+				/ this.simulationCounter.getMATSimsFlowCapFactorOfLastCompletedIteration();
 		double result = 0;
 		for (int i = 0; i < this.realData.length; i++) {
 			result += Math.abs(this.realData[i] - simulationFlowUpscale * simData[i]);

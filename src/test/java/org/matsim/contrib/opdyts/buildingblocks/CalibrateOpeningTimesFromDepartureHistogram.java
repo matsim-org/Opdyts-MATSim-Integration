@@ -33,7 +33,7 @@ import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.activitytimes.
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.activitytimes.OpeningTime;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.activitytimes.TypicalDuration;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composite.CompositeDecisionVariable;
-import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composite.CompositeDecisionVariableAndRandomizerBuilder;
+import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composite.CompositeDecisionVariableBuilder;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.composite.OneAtATimeRandomizer;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.scalar.ScalarRandomizer;
 import org.matsim.contrib.opdyts.buildingblocks.decisionvariables.utils.EveryIterationScoringParameters;
@@ -161,7 +161,7 @@ public class CalibrateOpeningTimesFromDepartureHistogram {
 
 		// >>>>>>>>>> TODO SPEC OF COMPOSITE (TIME) DECISION VARIABLES >>>>>>>>>>
 
-		CompositeDecisionVariableAndRandomizerBuilder builder = new CompositeDecisionVariableAndRandomizerBuilder();
+		CompositeDecisionVariableBuilder builder = new CompositeDecisionVariableBuilder();
 		double deltaTime_s = 15 * 60;
 		for (ActivityParams actParams : config.planCalcScore().getActivityParams()) {
 			if (!Time.isUndefinedTime(actParams.getOpeningTime())) {

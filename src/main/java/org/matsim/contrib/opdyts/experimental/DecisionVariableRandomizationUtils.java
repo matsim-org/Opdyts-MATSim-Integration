@@ -17,7 +17,7 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.utils;
+package org.matsim.contrib.opdyts.experimental;
 
 import java.util.ArrayList;
 import java.util.Collections;
