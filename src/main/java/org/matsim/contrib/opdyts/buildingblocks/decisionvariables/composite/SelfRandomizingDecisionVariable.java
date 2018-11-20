@@ -62,4 +62,12 @@ public class SelfRandomizingDecisionVariable<U extends DecisionVariable> impleme
 	public void implementInSimulation() {
 		this.decisionVariable.implementInSimulation();
 	}
+	
+	// -------------------- OVERRIDING OF Object --------------------
+	
+	@Override
+	public String toString() {
+		return this.decisionVariable.toString();
+	}
+	
 }

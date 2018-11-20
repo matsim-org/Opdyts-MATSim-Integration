@@ -17,7 +17,7 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.openingtimes;
+package org.matsim.contrib.opdyts.buildingblocks.decisionvariables.activitytimes;
 
 import java.net.URL;
 

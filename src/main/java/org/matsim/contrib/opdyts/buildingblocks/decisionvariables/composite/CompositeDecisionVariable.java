@@ -62,9 +62,12 @@ public class CompositeDecisionVariable implements DecisionVariable {
 	public String toString() {
 		final StringBuffer result = new StringBuffer();
 		result.append("[");
-		for (SelfRandomizingDecisionVariable<?> decisionVariable : this.decisionVariables) {
-			result.append(",");
-			result.append(decisionVariable.toString());
+		if (this.decisionVariables.size() > 0) {
+			result.append(this.decisionVariables.get(0).toString());
+			for (int i = 1; i < this.decisionVariables.size(); i++) {
+				result.append(",");
+				result.append(this.decisionVariables.get(i));
+			}
 		}
 		result.append("]");
 		return result.toString();
