@@ -101,6 +101,10 @@ public class MATSimOpdytsRunner<U extends DecisionVariable, X extends MATSimStat
 		this.selfTuner = selfTuner;
 	}
 
+	public void setDirectlyAdjustedDecisionVariable(final DecisionVariable directlyAdjustedDecisionVariable) {
+		this.matsimSimulationWrapper.setDirectlyAdjustedDecisionVariable(directlyAdjustedDecisionVariable);
+	}
+
 	// ----- CONFIGURATION OF (NOT YET STARTED/CREATED) SIMULATIONS/CONTROLERS -----
 
 	public void addSimulationStateAnalyzer(SimulationMacroStateAnalyzer analyzer) {
@@ -139,7 +143,7 @@ public class MATSimOpdytsRunner<U extends DecisionVariable, X extends MATSimStat
 
 		// TODO NEW
 		this.matsimSimulationWrapper.addOverridingModule(objectiveFunction.newAbstractModule());
-		
+
 		this.matsimSimulationWrapper.addOverridingModule(new AbstractModule() {
 			@Override
 			public void install() {

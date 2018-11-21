@@ -19,15 +19,23 @@
  */
 package org.matsim.contrib.opdyts.buildingblocks.calibration.counting;
 
+import java.util.Set;
+
+import org.matsim.api.core.v01.Id;
+import org.matsim.api.core.v01.network.Link;
+import org.matsim.contrib.opdyts.buildingblocks.calibration.plotting.TrajectoryPlotDataSource;
 import org.matsim.contrib.opdyts.microstate.MATSimState;
 import org.matsim.contrib.opdyts.objectivefunction.MATSimObjectiveFunction;
+
+import floetteroed.utilities.TimeDiscretization;
 
 /**
  *
  * @author Gunnar Flötteröd
  *
  */
-public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements MATSimObjectiveFunction<MATSimState> {
+public class AbsoluteLinkEntryCountDeviationObjectiveFunction
+		implements MATSimObjectiveFunction<MATSimState>, TrajectoryPlotDataSource {
 
 	private final double[] realData;
 
@@ -72,4 +80,33 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction implements MATSimO
 		result.append("\n");
 		return result.toString();
 	}
+
+	// --------------- IMPLEMENTATION OF TrajectoryPlotDataSource ---------------
+
+	@Override
+	public String getDescription() {
+		final Set<Id<Link>> linkIds = this.simulationCounter.getSpecification().getLinks();
+		return "Traffic counts on link" + (linkIds.size() > 1 ? "s " : " ") + linkIds;
+	}
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+		return this.simulationCounter.getSpecification().getTimeDiscretization();
+	}
+
+	@Override
+	public double[] getSimulatedData() {
+		final int[] source = this.simulationCounter.getDataOfLastCompletedIteration();
+		final double[] result = new double[source.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = source[i];
+		}
+		return result;
+	}
+
+	@Override
+	public double[] getRealData() {
+		return this.realData;
+	}
+
 }

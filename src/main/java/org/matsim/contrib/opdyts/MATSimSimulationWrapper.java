@@ -34,6 +34,8 @@ class MATSimSimulationWrapper<U extends DecisionVariable, X extends SimulatorSta
 
 	private final int numberOfEnBlockMatsimIterations;
 
+	private DecisionVariable directlyAdjustedDecisionVariable = null;
+
 	private AbstractModule[] replacingModules = null;
 
 	private AbstractModule overrides = AbstractModule.emptyModule();
@@ -87,6 +89,10 @@ class MATSimSimulationWrapper<U extends DecisionVariable, X extends SimulatorSta
 		this.opdytsProgressListener = opdytsProgressListener;
 	}
 
+	void setDirectlyAdjustedDecisionVariable(final DecisionVariable directlyAdjustedDecisionVariable) {
+		this.directlyAdjustedDecisionVariable = directlyAdjustedDecisionVariable;
+	}
+
 	// --------------- IMPLEMENTATION OF Simulator INTERFACE ---------------
 
 	@Override
@@ -113,7 +119,7 @@ class MATSimSimulationWrapper<U extends DecisionVariable, X extends SimulatorSta
 
 		final WireOpdytsIntoMATSimControlerListener<U, X> wireOpdytsIntoMATSimControlerListener = new WireOpdytsIntoMATSimControlerListener<>(
 				trajectorySampler, this.stateFactory, this.simulationStateAnalyzers,
-				this.numberOfEnBlockMatsimIterations);
+				this.numberOfEnBlockMatsimIterations, this.directlyAdjustedDecisionVariable);
 
 		/*
 		 * (3) Create, configure, and run a new MATSim Controler.

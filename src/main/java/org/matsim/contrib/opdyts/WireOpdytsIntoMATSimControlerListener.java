@@ -48,6 +48,9 @@ class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extend
 	// A list because the order matters in the state space vector.
 	private final List<SimulationMacroStateAnalyzer> simulationStateAnalyzers;
 
+	// TODO NEW 2018-11-20. Decision variables that are adjusted without search.
+	private final DecisionVariable directlyAdjustedDecisionVariable;
+
 	@Inject
 	private EventsManager eventsManager;
 
@@ -68,11 +71,12 @@ class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extend
 	WireOpdytsIntoMATSimControlerListener(final TrajectorySampler<U, X> trajectorySampler,
 			final MATSimStateFactory<U, X> stateFactory,
 			final List<SimulationMacroStateAnalyzer> simulationStateAnalyzers,
-			final int numberOfEnBlockMatsimIterations) {
+			final int numberOfEnBlockMatsimIterations, final DecisionVariable directlyAdjustedDecisionVariable) {
 		this.trajectorySampler = trajectorySampler;
 		this.stateFactory = stateFactory;
 		this.simulationStateAnalyzers = simulationStateAnalyzers;
 		this.numberOfEnBlockMatsimIterations = numberOfEnBlockMatsimIterations;
+		this.directlyAdjustedDecisionVariable = directlyAdjustedDecisionVariable;
 	}
 
 	// -------------------- INTERNALS --------------------
@@ -178,6 +182,11 @@ class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extend
 				 * provide the resulting state.
 				 */
 				this.trajectorySampler.afterIteration(this.newState());
+
+				// TODO NEW 2018-11-20
+				if (this.directlyAdjustedDecisionVariable != null) {
+					this.directlyAdjustedDecisionVariable.implementInSimulation();
+				}
 				
 				this.opdytsProgressListener.extractedStateAndCalledTrajectorySampler(event.getIteration());
 			}
@@ -191,7 +200,7 @@ class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extend
 				this.eventsManager.addHandler(analyzer);
 			}
 			this.opdytsProgressListener.clearedAndAddedMacroStateAnalyzers(event.getIteration());
-			
+
 		}
 	}
 
@@ -199,7 +208,7 @@ class WireOpdytsIntoMATSimControlerListener<U extends DecisionVariable, X extend
 	public void notifyAfterMobsim(final AfterMobsimEvent event) {
 
 		this.opdytsProgressListener.callToNotifyAfterMobsim_opdyts(event);
-		
+
 		if (event.getIteration() % this.numberOfEnBlockMatsimIterations == 0) {
 			/*
 			 * This is after a physical mobsim. Remove the macro state analyzers.
