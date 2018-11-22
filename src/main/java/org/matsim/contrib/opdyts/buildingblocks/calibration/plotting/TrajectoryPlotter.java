@@ -80,7 +80,7 @@ public class TrajectoryPlotter implements AfterMobsimListener {
 	@Override
 	public void notifyAfterMobsim(final AfterMobsimEvent event) {
 		if (event.getIteration() % this.logInterval == 0) {
-			final Path path = Paths.get(this.filePrefix, "" + event.getIteration(), this.fileSuffix);
+			final Path path = Paths.get(this.filePrefix + "_it" + event.getIteration() + this.fileSuffix);
 			try {
 				final PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path));
 				for (TrajectoryPlotDataSource dataSource : this.dataSources) {
@@ -107,7 +107,8 @@ public class TrajectoryPlotter implements AfterMobsimListener {
 				writer.flush();
 				writer.close();
 			} catch (IOException e) {
-				Logger.getLogger(this.getClass()).error(e);
+				throw new RuntimeException(e); // for debugging
+				// Logger.getLogger(this.getClass()).error(e);
 			}
 		}
 	}
