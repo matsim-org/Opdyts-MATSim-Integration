@@ -27,7 +27,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.matsim.core.controler.events.AfterMobsimEvent;
 import org.matsim.core.controler.listener.AfterMobsimListener;
 
@@ -70,9 +69,11 @@ public class TrajectoryPlotter implements AfterMobsimListener {
 
 	private void printlnData(final String label, final double[] data, final PrintWriter writer) {
 		writer.print(label);
-		for (double val : data) {
-			writer.print("\t");
-			writer.print(val);
+		if (data != null) {
+			for (double val : data) {
+				writer.print("\t");
+				writer.print(val);
+			}
 		}
 		writer.println();
 	}
