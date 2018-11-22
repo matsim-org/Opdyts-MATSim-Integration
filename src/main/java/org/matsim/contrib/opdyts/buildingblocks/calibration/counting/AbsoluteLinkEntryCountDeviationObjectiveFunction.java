@@ -97,11 +97,15 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction
 	@Override
 	public double[] getSimulatedData() {
 		final int[] source = this.simulationCounter.getDataOfLastCompletedIteration();
-		final double[] result = new double[source.length];
-		for (int i = 0; i < result.length; i++) {
-			result[i] = source[i];
+		if (source == null) {
+			return null;
+		} else {
+			final double[] result = new double[source.length];
+			for (int i = 0; i < result.length; i++) {
+				result[i] = source[i];
+			}
+			return result;
 		}
-		return result;
 	}
 
 	@Override
