@@ -41,10 +41,13 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction
 
 	private final LinkEntryCounter simulationCounter;
 
+	private final double simulatedPopulationShare;
+
 	public AbsoluteLinkEntryCountDeviationObjectiveFunction(final double[] realData,
-			final LinkEntryCounter simulationCounter) {
+			final LinkEntryCounter simulationCounter, final double simulatedPopulationShare) {
 		this.realData = realData;
 		this.simulationCounter = simulationCounter;
+		this.simulatedPopulationShare = simulatedPopulationShare;
 	}
 
 	public CountMeasurementSpecification getSpecification() {
@@ -54,11 +57,9 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction
 	@Override
 	public double value(final MATSimState state) {
 		final int[] simData = this.simulationCounter.getDataOfLastCompletedIteration();
-		final double simulationFlowUpscale = 1.0
-				/ this.simulationCounter.getMATSimsFlowCapFactorOfLastCompletedIteration();
 		double result = 0;
 		for (int i = 0; i < this.realData.length; i++) {
-			result += Math.abs(this.realData[i] - simulationFlowUpscale * simData[i]);
+			result += Math.abs(this.realData[i] - simData[i] / this.simulatedPopulationShare);
 		}
 		return result;
 	}
@@ -75,7 +76,7 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction
 		result.append("\n");
 		result.append("simu: ");
 		for (int val : this.simulationCounter.getDataOfLastCompletedIteration()) {
-			result.append("\t" + val / this.simulationCounter.getMATSimsFlowCapFactorOfLastCompletedIteration());
+			result.append("\t" + val / this.simulatedPopulationShare);
 		}
 		result.append("\n");
 		return result.toString();
@@ -102,7 +103,7 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction
 		} else {
 			final double[] result = new double[source.length];
 			for (int i = 0; i < result.length; i++) {
-				result[i] = source[i];
+				result[i] = source[i] / this.simulatedPopulationShare;
 			}
 			return result;
 		}

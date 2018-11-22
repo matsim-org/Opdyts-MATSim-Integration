@@ -34,8 +34,6 @@ public class LinkEntryCounter implements LinkEnterEventHandler, AfterMobsimListe
 
 	// -------------------- MEMBERS --------------------
 
-	private final Config config;
-
 	private final Counter counter;
 
 	private final CountMeasurementSpecification specification;
@@ -44,12 +42,9 @@ public class LinkEntryCounter implements LinkEnterEventHandler, AfterMobsimListe
 
 	private int[] countsOfLastCompletedIteration = null;
 
-	private Double flowCapFactorOfLastCompletedIteration = null;
-
 	// -------------------- CONSTRUCTION --------------------
 
 	public LinkEntryCounter(final Config config, final CountMeasurementSpecification specification) {
-		this.config = config;
 		this.counter = new Counter(specification.getTimeDiscretization());
 		this.specification = specification;
 	}
@@ -77,7 +72,6 @@ public class LinkEntryCounter implements LinkEnterEventHandler, AfterMobsimListe
 		this.countsOfLastCompletedIteration = new int[this.counter.getData().length];
 		System.arraycopy(this.counter.getData(), 0, this.countsOfLastCompletedIteration, 0,
 				this.counter.getData().length);
-		this.flowCapFactorOfLastCompletedIteration = this.config.qsim().getFlowCapFactor();
 	}
 
 	// -------------------- CONTENT ACCESS --------------------
@@ -92,9 +86,5 @@ public class LinkEntryCounter implements LinkEnterEventHandler, AfterMobsimListe
 
 	public int[] getDataOfLastCompletedIteration() {
 		return this.countsOfLastCompletedIteration;
-	}
-
-	public Double getMATSimsFlowCapFactorOfLastCompletedIteration() {
-		return this.flowCapFactorOfLastCompletedIteration;
 	}
 }

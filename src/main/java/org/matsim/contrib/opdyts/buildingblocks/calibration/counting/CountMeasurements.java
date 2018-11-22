@@ -40,6 +40,8 @@ public class CountMeasurements {
 
 	private final Config config;
 
+	private final double simulatedPopulationShare;
+
 	// -------------------- MEMBERS --------------------
 
 	private List<AbstractModule> modules = null;
@@ -48,8 +50,9 @@ public class CountMeasurements {
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public CountMeasurements(final Config config) {
+	public CountMeasurements(final Config config, final double simulatedPopulationShare) {
 		this.config = config;
+		this.simulatedPopulationShare = simulatedPopulationShare;
 	}
 
 	// -------------------- COMPOSITION --------------------
@@ -61,13 +64,13 @@ public class CountMeasurements {
 	// -------------------- BUILDING --------------------
 
 	public void build() {
-		
+
 		this.modules = new ArrayList<>(this.measSpec2data.size());
 		this.objectiveFunctions = new ArrayList<>(this.measSpec2data.size());
 		final Map<CountMeasurementSpecification, LinkEntryCounter> measSpec2linkEntryCounter = new LinkedHashMap<>();
-		
+
 		for (Map.Entry<CountMeasurementSpecification, double[]> entry : this.measSpec2data.entrySet()) {
-			final CountMeasurementSpecification spec = entry.getKey();			
+			final CountMeasurementSpecification spec = entry.getKey();
 
 			final LinkEntryCounter simCounter;
 			if (measSpec2linkEntryCounter.containsKey(spec)) {
@@ -83,9 +86,10 @@ public class CountMeasurements {
 					}
 				});
 			}
-			
+
 			final double[] data = entry.getValue();
-			this.objectiveFunctions.add(new AbsoluteLinkEntryCountDeviationObjectiveFunction(data, simCounter));
+			this.objectiveFunctions.add(new AbsoluteLinkEntryCountDeviationObjectiveFunction(data, simCounter,
+					this.simulatedPopulationShare));
 		}
 	}
 

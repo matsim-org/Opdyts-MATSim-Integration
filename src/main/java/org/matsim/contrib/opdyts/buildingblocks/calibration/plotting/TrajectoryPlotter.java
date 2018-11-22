@@ -27,18 +27,22 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.matsim.core.controler.events.AfterMobsimEvent;
-import org.matsim.core.controler.listener.AfterMobsimListener;
+import org.matsim.core.controler.events.IterationEndsEvent;
+import org.matsim.core.controler.listener.IterationEndsListener;
 
 import floetteroed.utilities.Time;
 import floetteroed.utilities.TimeDiscretization;
 
 /**
+ * This is an IterationEndsListener because the completion of the simulated data
+ * extraction is implemented in an AfterMobsimListener. If this was also an
+ * AfterMobsimListener then it appears not guaranteed that the data is completed
+ * before the writing is triggered.
  *
  * @author Gunnar Flötteröd
  *
  */
-public class TrajectoryPlotter implements AfterMobsimListener {
+public class TrajectoryPlotter implements IterationEndsListener {
 
 	// -------------------- CONSTANTS --------------------
 
@@ -79,7 +83,7 @@ public class TrajectoryPlotter implements AfterMobsimListener {
 	}
 
 	@Override
-	public void notifyAfterMobsim(final AfterMobsimEvent event) {
+	public void notifyIterationEnds(IterationEndsEvent event) {
 		if (event.getIteration() % this.logInterval == 0) {
 			final Path path = Paths.get(this.filePrefix + "_it" + event.getIteration() + this.fileSuffix);
 			try {
