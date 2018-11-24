@@ -38,6 +38,7 @@ import floetteroed.utilities.TimeDiscretization;
 public class CountMeasurementSpecification {
 
 	// -------------------- CONSTANTS --------------------
+	
 	private final TimeDiscretization timeDiscr;
 
 	private final Filter<Id<Vehicle>> vehicleFilter;

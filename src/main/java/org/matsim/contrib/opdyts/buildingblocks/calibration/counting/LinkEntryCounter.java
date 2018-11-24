@@ -21,7 +21,6 @@ package org.matsim.contrib.opdyts.buildingblocks.calibration.counting;
 
 import org.matsim.api.core.v01.events.LinkEnterEvent;
 import org.matsim.api.core.v01.events.handler.LinkEnterEventHandler;
-import org.matsim.core.config.Config;
 import org.matsim.core.controler.events.AfterMobsimEvent;
 import org.matsim.core.controler.listener.AfterMobsimListener;
 
@@ -44,7 +43,7 @@ public class LinkEntryCounter implements LinkEnterEventHandler, AfterMobsimListe
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public LinkEntryCounter(final Config config, final CountMeasurementSpecification specification) {
+	public LinkEntryCounter(final CountMeasurementSpecification specification) {
 		this.counter = new Counter(specification.getTimeDiscretization());
 		this.specification = specification;
 	}

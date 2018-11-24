@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.matsim.core.config.Config;
 import org.matsim.core.controler.AbstractModule;
 
 /**
@@ -38,8 +37,6 @@ public class CountMeasurements {
 
 	private Map<CountMeasurementSpecification, double[]> measSpec2data = new LinkedHashMap<>();
 
-	private final Config config;
-
 	private final double simulatedPopulationShare;
 
 	// -------------------- MEMBERS --------------------
@@ -50,8 +47,7 @@ public class CountMeasurements {
 
 	// -------------------- CONSTRUCTION --------------------
 
-	public CountMeasurements(final Config config, final double simulatedPopulationShare) {
-		this.config = config;
+	public CountMeasurements(final double simulatedPopulationShare) {
 		this.simulatedPopulationShare = simulatedPopulationShare;
 	}
 
@@ -76,7 +72,7 @@ public class CountMeasurements {
 			if (measSpec2linkEntryCounter.containsKey(spec)) {
 				simCounter = measSpec2linkEntryCounter.get(spec);
 			} else {
-				simCounter = new LinkEntryCounter(this.config, spec);
+				simCounter = new LinkEntryCounter(spec);
 				measSpec2linkEntryCounter.put(spec, simCounter);
 				this.modules.add(new AbstractModule() {
 					@Override
