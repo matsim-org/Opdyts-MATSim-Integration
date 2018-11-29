@@ -177,5 +177,5 @@
         </dependency>
     </dependencies>
     <inceptionYear>2017</inceptionYear>
-    <description>Provides integration of Opdyts with MATSim for automated calibration.</description>
+    <description>Provides integration of Opdyts with MATSim for automated optimization.</description>
 </project>

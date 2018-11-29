@@ -64,7 +64,7 @@ public class TrajectoryPlotter implements IterationEndsListener {
 	public TrajectoryPlotter(final String filePrefix, final int logInterval) {
 		this.filePrefix = filePrefix;
 		this.logInterval = logInterval;
-		throw new RuntimeException("Yes, it's me.");
+		Logger.getLogger(TrajectoryPlotter.class).info("Created the trajectory plotter.");
 	}
 
 	// -------------------- IMPLEMENTATION --------------------
