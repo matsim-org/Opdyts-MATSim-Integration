@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Link;
+import org.matsim.contrib.opdyts.buildingblocks.calibration.plotting.CountTrajectorySummarizer;
 import org.matsim.contrib.opdyts.buildingblocks.calibration.plotting.TrajectoryPlotDataSource;
 import org.matsim.contrib.opdyts.microstate.MATSimState;
 import org.matsim.contrib.opdyts.objectivefunction.MATSimObjectiveFunction;
@@ -113,5 +114,12 @@ public class AbsoluteLinkEntryCountDeviationObjectiveFunction
 	public double[] getRealData() {
 		return this.realData;
 	}
+	
+	@Override
+	public String getDataType() {
+		return CountTrajectorySummarizer.DATA_TYPE;
+	}
+
+
 
 }

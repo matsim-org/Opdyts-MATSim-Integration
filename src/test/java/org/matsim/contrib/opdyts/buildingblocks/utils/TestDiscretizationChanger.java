@@ -17,13 +17,12 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.experimental;
+package org.matsim.contrib.opdyts.buildingblocks.utils;
 
 import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.matsim.contrib.opdyts.experimental.DiscretizationChanger;
 
 import floetteroed.utilities.TimeDiscretization;
 

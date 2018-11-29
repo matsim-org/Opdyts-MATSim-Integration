@@ -19,24 +19,18 @@
  */
 package org.matsim.contrib.opdyts.buildingblocks.calibration.plotting;
 
-import floetteroed.utilities.TimeDiscretization;
-
 /**
  *
  * @author Gunnar Flötteröd
  *
  */
-public interface TrajectoryPlotDataSource {
+public interface TrajectoryDataSummarizer extends TrajectoryPlotDataSource {
 
-	public String getDescription();
+	public void clear();
 	
-	public TimeDiscretization getTimeDiscretization();
+	public void offerCandidate(TrajectoryPlotDataSource dataSource);
 	
-	public double[] getSimulatedData();
-	
-	public double[] getRealData();
+	public void build();
 
-	public String getDataType();
-	
 }
 

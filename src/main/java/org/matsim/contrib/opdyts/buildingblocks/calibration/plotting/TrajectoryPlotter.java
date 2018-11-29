@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.matsim.core.controler.events.IterationEndsEvent;
 import org.matsim.core.controler.listener.IterationEndsListener;
 
@@ -56,6 +57,8 @@ public class TrajectoryPlotter implements IterationEndsListener {
 
 	private final List<TrajectoryPlotDataSource> dataSources = new ArrayList<>();
 
+	private final List<TrajectoryDataSummarizer> summarizers = new ArrayList<>();
+
 	// -------------------- CONSTRUCTION --------------------
 
 	public TrajectoryPlotter(final String filePrefix, final int logInterval) {
@@ -67,6 +70,10 @@ public class TrajectoryPlotter implements IterationEndsListener {
 
 	public void addDataSource(final TrajectoryPlotDataSource dataSource) {
 		this.dataSources.add(dataSource);
+	}
+
+	public void addSummarizer(final TrajectoryDataSummarizer summarizer) {
+		this.summarizers.add(summarizer);
 	}
 
 	// --------------- IMPLEMENTATION OF AfterMobsimListener ---------------
@@ -82,38 +89,50 @@ public class TrajectoryPlotter implements IterationEndsListener {
 		writer.println();
 	}
 
+	private void printBlock(final TrajectoryPlotDataSource dataSource, final PrintWriter writer) {
+		// 1st row: The description
+		writer.println(dataSource.getDescription());
+		// 2nd row: The time line
+		final TimeDiscretization timeDiscr = dataSource.getTimeDiscretization();
+		writer.print("time");
+		for (int bin = 0; bin < timeDiscr.getBinCnt(); bin++) {
+			writer.print("\t[");
+			writer.print(Time.strFromSec(timeDiscr.getBinStartTime_s(bin)));
+			writer.print(",");
+			writer.print(Time.strFromSec(timeDiscr.getBinEndTime_s(bin)));
+			writer.print(")");
+		}
+		writer.println();
+		// 3rd row: The simulated data
+		this.printlnData("simulated", dataSource.getSimulatedData(), writer);
+		// 4th row: The real data
+		this.printlnData("real", dataSource.getRealData(), writer);
+		// 5th row: empty.
+		writer.println();
+	}
+
 	@Override
 	public void notifyIterationEnds(IterationEndsEvent event) {
 		if (event.getIteration() % this.logInterval == 0) {
+			for (TrajectoryDataSummarizer summarizer : this.summarizers) {
+				summarizer.clear();
+			}
 			final Path path = Paths.get(this.filePrefix + "_it" + event.getIteration() + this.fileSuffix);
 			try {
 				final PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path));
 				for (TrajectoryPlotDataSource dataSource : this.dataSources) {
-					// 1st row: The description
-					writer.println(dataSource.getDescription());
-					// 2nd row: The time line
-					final TimeDiscretization timeDiscr = dataSource.getTimeDiscretization();
-					writer.print("time");
-					for (int bin = 0; bin < timeDiscr.getBinCnt(); bin++) {
-						writer.print("\t[");
-						writer.print(Time.strFromSec(timeDiscr.getBinStartTime_s(bin)));
-						writer.print(",");
-						writer.print(Time.strFromSec(timeDiscr.getBinEndTime_s(bin)));
-						writer.print(")");
+					printBlock(dataSource, writer);
+					for (TrajectoryDataSummarizer summarizer : this.summarizers) {
+						summarizer.offerCandidate(dataSource);
 					}
-					writer.println();
-					// 3rd row: The simulated data
-					this.printlnData("simulated", dataSource.getSimulatedData(), writer);
-					// 4th row: The real data
-					this.printlnData("real", dataSource.getRealData(), writer);
-					// 5th row: empty.
-					writer.println();
+				}
+				for (TrajectoryDataSummarizer summarizer : this.summarizers) {
+					printBlock(summarizer, writer);
 				}
 				writer.flush();
 				writer.close();
 			} catch (IOException e) {
-				throw new RuntimeException(e); // for debugging
-				// Logger.getLogger(this.getClass()).error(e);
+				Logger.getLogger(this.getClass()).error(e);
 			}
 		}
 	}

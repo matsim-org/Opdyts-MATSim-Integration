@@ -17,7 +17,7 @@
  * contact: gunnar.flotterod@gmail.com
  *
  */
-package org.matsim.contrib.opdyts.experimental;
+package org.matsim.contrib.opdyts.buildingblocks.utils;
 
 import floetteroed.utilities.TimeDiscretization;
 import floetteroed.utilities.math.MathHelpers;
