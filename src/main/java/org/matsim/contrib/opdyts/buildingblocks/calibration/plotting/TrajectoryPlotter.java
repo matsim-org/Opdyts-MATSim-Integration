@@ -125,8 +125,9 @@ public class TrajectoryPlotter implements IterationEndsListener {
 					for (TrajectoryDataSummarizer summarizer : this.summarizers) {
 						summarizer.offerCandidate(dataSource);
 					}
-				}
+				}				
 				for (TrajectoryDataSummarizer summarizer : this.summarizers) {
+					summarizer.build();
 					printBlock(summarizer, writer);
 				}
 				writer.flush();
