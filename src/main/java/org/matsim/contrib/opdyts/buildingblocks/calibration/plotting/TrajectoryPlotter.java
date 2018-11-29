@@ -121,14 +121,14 @@ public class TrajectoryPlotter implements IterationEndsListener {
 			try {
 				final PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path));
 				for (TrajectoryPlotDataSource dataSource : this.dataSources) {
-					printBlock(dataSource, writer);
+					this.printBlock(dataSource, writer);
 					for (TrajectoryDataSummarizer summarizer : this.summarizers) {
 						summarizer.offerCandidate(dataSource);
 					}
 				}				
 				for (TrajectoryDataSummarizer summarizer : this.summarizers) {
 					summarizer.build();
-					printBlock(summarizer, writer);
+					this.printBlock(summarizer, writer);
 				}
 				writer.flush();
 				writer.close();
